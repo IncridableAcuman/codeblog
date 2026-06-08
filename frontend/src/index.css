@@ -1,1 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss"; /* Agar bor bo'lsa qoladi */
+
+@theme {
+  --variant-dark: .dark &;
+}

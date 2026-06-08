@@ -6,6 +6,7 @@ import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage';
 import { UseAuth } from '../context/AuthContext';
 import { MainLayout } from '../components/layout/MainLayout';
+import { BlogListPage } from '../features/blog/pages/BlogListPage';
 
 // Himoyalangan router (Faqat tizimga kirganlar uchun)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -25,7 +26,7 @@ export const AppRoutes = () => {
       {/* Asosiy umumiy qobiq */}
       <Route path="/" element={<MainLayout />}>
         {/* Public Sahifalar (Hamma ko'ra oladi) */}
-        <Route index element={<div>Bloglar ro'yxati (Milestone 3 da quramiz)</div>} />
+        <Route index element={<BlogListPage/>} />
         <Route path="blog/:id" element={<div>Blog batafsil ko'rish sahifasi</div>} />
 
         {/* Faqat mehmonlar uchun sahifalar */}
