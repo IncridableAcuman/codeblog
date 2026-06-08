@@ -1,12 +1,16 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from '../features/auth/pages/LoginPage';
-import { RegisterPage } from '../features/auth/pages/RegisterPage';
-import { VerifyOtpPage } from '../features/auth/pages/VerifyOtpPage';
-import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage';
-import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage';
-import { UseAuth } from '../context/AuthContext';
-import { MainLayout } from '../components/layout/MainLayout';
-import { BlogListPage } from '../features/blog/pages/BlogListPage';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { LoginPage } from "../features/auth/pages/LoginPage";
+import { RegisterPage } from "../features/auth/pages/RegisterPage";
+import { VerifyOtpPage } from "../features/auth/pages/VerifyOtpPage";
+import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "../features/auth/pages/ResetPasswordPage";
+import { UseAuth } from "../context/AuthContext";
+import { MainLayout } from "../components/layout/MainLayout";
+import { BlogListPage } from "../features/blog/pages/BlogListPage";
+import { BlogDetailPage } from "../features/blog/pages/BlogDetailPage";
+import { CreatePostPage } from "../features/blog/pages/CreatePostPage";
+import { DashboardPage } from "../features/dashboard/page/DashboardPage";
+import { ProfilePage } from "../features/dashboard/page/ProfilePage";
 
 // Himoyalangan router (Faqat tizimga kirganlar uchun)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -17,7 +21,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Auth router (Tizimga kirgan odam qayta login sahifasiga kirolmasligi uchun)
 const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = UseAuth();
-  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
+  return !isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/dashboard" replace />
+  );
 };
 
 export const AppRoutes = () => {
@@ -26,27 +34,89 @@ export const AppRoutes = () => {
       {/* Asosiy umumiy qobiq */}
       <Route path="/" element={<MainLayout />}>
         {/* Public Sahifalar (Hamma ko'ra oladi) */}
-        <Route index element={<BlogListPage/>} />
-        <Route path="blog/:id" element={<div>Blog batafsil ko'rish sahifasi</div>} />
+        <Route index element={<BlogListPage />} />
+        <Route
+          path="blog/:id"
+          element={<div>Blog batafsil ko'rish sahifasi</div>}
+        />
+        <Route path="blog/:id" element={<BlogDetailPage />} />
 
         {/* Faqat mehmonlar uchun sahifalar */}
-        <Route path="login" element={<AuthRoute><LoginPage /></AuthRoute>} />
-        <Route path="register" element={<AuthRoute><RegisterPage /></AuthRoute>} />
-        <Route path="verify-otp" element={<AuthRoute><VerifyOtpPage /></AuthRoute>} />
-        <Route path="forgot-password" element={<AuthRoute><ForgotPasswordPage /></AuthRoute>} />
-        <Route path="reset-password" element={<AuthRoute><ResetPasswordPage /></AuthRoute>} />
+        <Route
+          path="login"
+          element={
+            <AuthRoute>
+              <LoginPage />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="register"
+          element={
+            <AuthRoute>
+              <RegisterPage />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="verify-otp"
+          element={
+            <AuthRoute>
+              <VerifyOtpPage />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="forgot-password"
+          element={
+            <AuthRoute>
+              <ForgotPasswordPage />
+            </AuthRoute>
+          }
+        />
+        <Route
+          path="reset-password"
+          element={
+            <AuthRoute>
+              <ResetPasswordPage />
+            </AuthRoute>
+          }
+        />
 
         {/* Himoyalangan sahifalar (Dashboard, Create Post) */}
-        <Route path="dashboard" element={
-          <ProtectedRoute>
-            <div>Dashboard paneli (Milestone 5 da quramiz)</div>
-          </ProtectedRoute>
-        } />
-        <Route path="create-post" element={
-          <ProtectedRoute>
-            <div>Yangi post yaratish (Milestone 4 da quramiz)</div>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <div>Dashboard paneli (Milestone 5 da quramiz)</div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="create-post"
+          element={
+            <ProtectedRoute>
+              <CreatePostPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* Noto'g'ri URL kiritilsa bosh sahifaga otadi */}
