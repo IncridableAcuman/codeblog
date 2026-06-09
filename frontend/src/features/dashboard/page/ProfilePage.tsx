@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiUser, FiMail, FiCamera, FiCheck } from 'react-icons/fi';
-import { useAuth } from '../../../context/AuthContext';
+import { UseAuth } from '../../../context/AuthContext';
 
 export const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user } = UseAuth();
   const [fullName, setFullName] = useState(user?.fullName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [isSaved, setIsSaved] = useState(false);
