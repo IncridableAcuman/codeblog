@@ -55,7 +55,7 @@ export const LoginPage: React.FC = () => {
           {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Email Pochta
+              {t('emailLabel')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -75,7 +75,7 @@ export const LoginPage: React.FC = () => {
           {/* Parol Input */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Parol
+              {t('passwordLabel')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -104,9 +104,10 @@ export const LoginPage: React.FC = () => {
         <div className="flex items-center justify-end text-sm">
           <Link
             to="/forgot-password"
+            
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
-            Parolni unutdingizmi?
+            {t('forgotPassword')}
           </Link>
         </div>
 
@@ -125,19 +126,19 @@ export const LoginPage: React.FC = () => {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             ) : (
-              'Tizimga kirish'
+              t('loginBtn')
             )}
           </motion.button>
         </div>
 
         {/* Ro'yxatdan o'tishga havola */}
         <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
-          Hisobingiz yo'qmi?{' '}
+          {t('noAccount')}{' '}
           <Link
             to="/register"
             className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
-            Ro'yxatdan o'tish
+            {t('registerLink')}
           </Link>
         </p>
       </form>

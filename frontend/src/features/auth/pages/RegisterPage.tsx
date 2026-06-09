@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
+import { useTranslation } from 'react-i18next';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,7 +44,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Hisob yaratish" subtitle="Dasturlash hamjamiyatimizga qo'shiling">
+    <AuthLayout title={t('registerTitle')} subtitle={t('registerSubtitle')}>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         {error && (
           <motion.div 
@@ -58,7 +60,7 @@ export const RegisterPage: React.FC = () => {
           {/* To'liq ism */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Ism va Familiya
+              {t('fullName')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -78,7 +80,7 @@ export const RegisterPage: React.FC = () => {
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Email Pochta
+              {t('emailLabel')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -98,7 +100,7 @@ export const RegisterPage: React.FC = () => {
           {/* Parol */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Parol
+              {t('passwordLabel')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -125,7 +127,7 @@ export const RegisterPage: React.FC = () => {
           {/* Parolni tasdiqlash */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Parolni tasdiqlash
+              {t('confirmPassword')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -151,14 +153,14 @@ export const RegisterPage: React.FC = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 shadow-md shadow-blue-500/20 transition-all"
           >
-            {isLoading ? 'Hisob yaratilmoqda...' : 'Ro\'yxatdan o\'tish'}
+            {isLoading ? t('creatingAccount') : t('registerLink')}
           </motion.button>
         </div>
 
         <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-4">
-          Profilingiz bormi?{' '}
+          {t('haveAProfile')}{' '}
           <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-            Tizimga kirish
+            {t('loginBtn')}
           </Link>
         </p>
       </form>

@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
+import { useTranslation } from 'react-i18next';
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,7 +41,7 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Yangi parol" subtitle="Profilingiz uchun kuchliroq parol tanlang">
+    <AuthLayout title={t('resetPasswordTitle')} subtitle={t('resetPasswordSubTitle')}>
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         {error && (
           <motion.div 
@@ -55,7 +57,7 @@ export const ResetPasswordPage: React.FC = () => {
           {/* Yangi parol */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Yangi parol
+              {t('newPassword')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -82,7 +84,7 @@ export const ResetPasswordPage: React.FC = () => {
           {/* Yangi parolni tasdiqlash */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Yangi parolni tasdiqlash
+              {t('confirmNewPassword')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -108,7 +110,7 @@ export const ResetPasswordPage: React.FC = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
           >
-            {isLoading ? 'Saqlanmoqda...' : 'Parolni yangilash'}
+            {isLoading ? t('saving') : t('updatePassword')}
           </motion.button>
         </div>
       </form>

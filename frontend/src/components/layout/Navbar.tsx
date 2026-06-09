@@ -6,7 +6,7 @@ import { UseTheme } from '../../context/ThemeContext';
 import { UseAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { theme, toggleTheme } = UseTheme();
   const { user, isAuthenticated, logout } = UseAuth();
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export const Navbar: React.FC = () => {
               to="/login"
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all shadow-sm"
             >
-              Kirish
+              {t('entrance')}
             </Link>
           )}
         </div>

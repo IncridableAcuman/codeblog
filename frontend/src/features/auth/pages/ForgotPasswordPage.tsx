@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
 import {motion} from 'framer-motion'
+import { useTranslation } from 'react-i18next';
 export const ForgotPasswordPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
@@ -34,8 +36,8 @@ export const ForgotPasswordPage: React.FC = () => {
 
   return (
     <AuthLayout 
-      title="Parolni tiklash" 
-      subtitle="Profilingiz bog'langan email pochtangizni kiriting"
+      title={t('forgotPasswordTitle')}
+      subtitle={t('forgotPasswordSubtitle')}
     >
       {!isSent ? (
         <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
@@ -51,7 +53,7 @@ export const ForgotPasswordPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Email Pochta
+              {t('emailLabel')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -75,14 +77,14 @@ export const ForgotPasswordPage: React.FC = () => {
                 disabled={isLoading}
                 className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
               >
-                {isLoading ? 'Yuborilmoqda...' : 'Tasdiqlash kodini yuborish'}
+                {isLoading ? t('sending') : t('sendVerificationCode')}
               </button>
             </motion.div>
           </div>
 
           <div className="text-center">
             <Link to="/login" className="inline-flex items-center text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors gap-1">
-              <FiArrowLeft /> Tizimga kirishga qaytish
+              <FiArrowLeft /> {t('returnToLogin')}
             </Link>
           </div>
         </form>
