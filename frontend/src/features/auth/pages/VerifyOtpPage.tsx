@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AuthLayout } from '../components/AuthLayout';
+import { useTranslation } from 'react-i18next';
 
 export const VerifyOtpPage: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const email = location.state?.email || 'sizning emailingiz';
@@ -79,7 +81,7 @@ export const VerifyOtpPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title="Kodni tasdiqlash" subtitle={`${email} pochtasiga yuborilgan 4 xonali kodni kiriting`}>
+    <AuthLayout title={t('verifyOtpTitle')} subtitle={t('verifyOtpSubtitle')}>
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
           <motion.div 
@@ -115,21 +117,21 @@ export const VerifyOtpPage: React.FC = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
           >
-            {isLoading ? 'Tasdiqlanmoqda...' : 'Kodni tasdiqlash'}
+            {isLoading ? t('verifying') : t('verifyCode')}
           </motion.button>
         </div>
 
         {/* Qayta yuborish taymeri */}
         <div className="text-center text-sm text-slate-600 dark:text-slate-400">
           {timer > 0 ? (
-            <span>Kodni qayta yuborish: <strong className="text-blue-600 dark:text-blue-400">{timer}s</strong></span>
+            <span>{t('resendCode')} <strong className="text-blue-600 dark:text-blue-400">{timer}s</strong></span>
           ) : (
             <button
               type="button"
               onClick={handleResend}
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 underline transition-colors"
             >
-              Kodni qayta jo'natish
+              {t('regenerateCode')}
             </button>
           )}
         </div>

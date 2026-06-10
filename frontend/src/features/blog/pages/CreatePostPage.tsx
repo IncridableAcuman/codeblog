@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiCpu } from 'react-icons/fi';
 import type { BlogCategory } from '../../../types/blog';
+import { RichEditor } from '../../../components/editor/RichEditor';
 
 const CATEGORIES: BlogCategory[] = ['Frontend', 'Backend', 'Mobile', 'DevOps', 'AI & ML'];
 
@@ -148,7 +149,6 @@ export const CreatePostPage: React.FC = () => {
               disabled={isAiLoading}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl disabled:opacity-50 transition-all shadow-sm"
             >
-              <FiSparkles />
               {isAiLoading ? 'AI o‘ylamoqda...' : 'G‘oyalarni generatsiya qilish'}
             </motion.button>
           </div>

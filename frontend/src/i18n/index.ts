@@ -32,6 +32,12 @@ const resources = {
       saving: "Saqlanmoqda...",
       entrance: "Kirish",
       exit: "Chiqish",
+      verifyOtpTitle: "Kodni tasdiqlash",
+      verifyOtpSubtitle: "sizning emailingiz pochtasiga yuborilgan 4 xonali kodni kiriting",
+      verifyCode: "Kodni tasdiqlash",
+      verifying: "Tasdiqlanmoqda...",
+      resendCode: "Kodni qayta yuborish:",
+      regenerateCode: " Kodni qayta jo'natish",
     }
   },
   en: {
@@ -63,6 +69,12 @@ const resources = {
       saving: "Saving...",
       entrance: "Entrance",
       exit: "Exit",
+      verifyOtpTitle: "Verify Code",
+      verifyOtpSubtitle: "Enter the 4-digit code sent to your email address",
+      verifyCode: "Verify Code",
+      verifying: "Verifying...",
+      resendCode: "Resend Code:",
+      regenerateCode: "Regenerate Code",
     }
   },
   ru: {
@@ -94,6 +106,12 @@ const resources = {
       saving: "Экономия...",
       entrance: "Вход",
       exit: "Выход",
+      verifyOtpTitle: "Проверьте код",
+      verifyOtpSubtitle: "Введите 4-значный код, отправленный на ваш адрес электронной почты",
+      verifyCode: "Проверить код",
+      verifying: "Проверка...",
+      resendCode: "Повторно отправить код:",
+      regenerateCode: "Сгенерировать код",
     }
   }
 };
