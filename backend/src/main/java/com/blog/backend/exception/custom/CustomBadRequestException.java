@@ -1,4 +1,4 @@
-package com.blog.backend.exception;
+package com.blog.backend.exception.custom;
 
 public class CustomBadRequestException extends RuntimeException{
     public CustomBadRequestException(String message){
