@@ -1,4 +1,4 @@
-package com.blog.backend.security.util;
+package com.blog.backend.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
