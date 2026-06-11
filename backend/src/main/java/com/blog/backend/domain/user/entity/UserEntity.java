@@ -36,6 +36,8 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private boolean isActive=false;
+
     @Column(name = "avatar_url")
     private String avatarUrl;
 
