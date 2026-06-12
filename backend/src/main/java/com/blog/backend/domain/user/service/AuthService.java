@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,9 +110,17 @@ public class AuthService {
     }
     public UserResponse getMe(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         assert authentication != null;
-        UserEntity user = (UserEntity) authentication.getPrincipal();
-        assert user != null;
+        Object principal=authentication.getPrincipal();
+        String email;
+        try {
+            assert principal != null;
+            email = ((UserDetails) principal).getUsername();
+        } catch (Exception e) {
+            email = principal.toString();
+        }
+        UserEntity user = findUserByEmail(email);
         return UserResponse.from(user);
     }
 }

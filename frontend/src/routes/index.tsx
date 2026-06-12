@@ -10,21 +10,44 @@ import { BlogListPage } from "../features/blog/pages/BlogListPage";
 import { BlogDetailPage } from "../features/blog/pages/BlogDetailPage";
 import { CreatePostPage } from "../features/blog/pages/CreatePostPage";
 import { DashboardPage } from "../features/dashboard/page/DashboardPage";
-import { ProfilePage } from "../features/dashboard/page/ProfilePage";
+import { ProfilePage } from "../features/profile/pages/ProfilePage";
 
 // Himoyalangan router (Faqat tizimga kirganlar uchun)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = UseAuth();
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
-};
+  const { user, loading } = UseAuth();
 
-// Auth router (Tizimga kirgan odam qayta login sahifasiga kirolmasligi uchun)
-const AuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = UseAuth();
-  return !isAuthenticated ? (
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Yuklanmoqda...
+      </div>
+    ); // O'zingizni Spinner'ingizni qo'ysangiz bo'ladi
+  }
+
+  // Agar user mavjud bo'lsa (yoki backend response mantiqiga qarab shunchaki 'user' o'zini tekshiring)
+  return user && user.isActive ? (
     <>{children}</>
   ) : (
+    <Navigate to="/login" replace />
+  );
+};
+
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = UseAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Yuklanmoqda...
+      </div>
+    );
+  }
+
+  // Agar foydalanuvchi tizimga kirgan va faol bo'lsa, uni dashboardga o'tkazib yuboramiz
+  return user && user.isActive ? (
     <Navigate to="/dashboard" replace />
+  ) : (
+    <>{children}</>
   );
 };
 
@@ -88,7 +111,7 @@ export const AppRoutes = () => {
           path="dashboard"
           element={
             <ProtectedRoute>
-              <div>Dashboard paneli (Milestone 5 da quramiz)</div>
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
@@ -97,14 +120,6 @@ export const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <CreatePostPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
             </ProtectedRoute>
           }
         />

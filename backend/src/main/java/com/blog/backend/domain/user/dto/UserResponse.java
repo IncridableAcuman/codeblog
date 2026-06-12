@@ -8,7 +8,8 @@ public record UserResponse(
         String fullName,
         String email,
         Role role,
-        String avatarUrl
+        String avatarUrl,
+        boolean isActive
 ) {
     public static UserResponse from(UserEntity user){
         return new UserResponse(
@@ -16,7 +17,8 @@ public record UserResponse(
                 user.getFullName(),
                 user.getEmail(),
                 user.getRole(),
-                user.getAvatarUrl()
+                user.getAvatarUrl(),
+                user.isActive()
         );
     }
 }
