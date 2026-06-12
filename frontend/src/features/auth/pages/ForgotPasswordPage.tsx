@@ -13,24 +13,22 @@ export const ForgotPasswordPage: React.FC = () => {
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      await axiosInstance.post("/auth/forgot-password",{email})
-      // Kelajakda: authService.forgotPassword(email)
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await axiosInstance.post("/auth/forgot-password", { email });
       setIsSent(true);
       
-      // 2 soniyadan keyin parolni yangilash sahifasiga o'tkazib yuboramiz (simulyatsiya)
+      // Simulyatsiya o'rniga haqiqiy OTP sahifasiga yo'llaymiz!
       setTimeout(() => {
-        navigate('/reset-password', { state: { email } });
-      }, 2500);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError("Emailga kod yuborishda xatolik bo'ldi.");
+        navigate('/verify-otp', { state: { email, from: 'forgot-password' } });
+      }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Emailga kod yuborishda xatolik bo'ldi.");
     } finally {
       setIsLoading(false);
     }

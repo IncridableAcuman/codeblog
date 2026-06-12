@@ -22,16 +22,16 @@ export const LoginPage: React.FC = () => {
     setError('');
     setIsLoading(true);
 
-    try {
-      const {data} = await axiosInstance.post("/auth/login",{email,password});
-      localStorage.setItem("accessToken",data.accessToken);
-      const userProfile = await  axiosInstance.get("/auth/me");
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+try {
+      const { data } = await axiosInstance.post("/auth/login", { email, password });
+      localStorage.setItem("accessToken", data.accessToken);
+      const userProfile = await axiosInstance.get("/auth/me");
       setUser(userProfile.data);
-     navigate("/");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError("Tizimga kirishda xatolik yuz berdi.");
+      navigate("/");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      // Backend xabari: "User is not active" yoki "Password doesn't match" bo'lsa ko'rsatadi
+      setError(err.response?.data?.message || "Tizimga kirishda xatolik yuz berdi.");
     } finally {
       setIsLoading(false);
     }

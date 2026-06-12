@@ -9,7 +9,10 @@ export const VerifyOtpPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || "sizning emailingiz";
+  
+  // State xavfsizligini ta'minlash
+  const email = location.state?.email;
+  const from = location.state?.from || "register"; // 'register' yoki 'forgot-password'
 
   const [otp, setOtp] = useState<string[]>(new Array(4).fill(""));
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +21,12 @@ export const VerifyOtpPage: React.FC = () => {
 
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
-  // Kodni qayta yuborish taymeri
+  useEffect(() => {
+    if (!email) {
+      navigate("/login");
+    }
+  }, [email, navigate]);
+
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -28,22 +36,16 @@ export const VerifyOtpPage: React.FC = () => {
 
   const handleChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return;
-
     const newOtp = [...otp];
     newOtp[index] = element.value;
     setOtp(newOtp);
 
-    // Agar raqam kiritilsa, keyingi inputga fokus berish
     if (element.value !== "" && index < 3) {
       inputRefs.current[index + 1].focus();
     }
   };
 
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    // Backspace bosilganda orqaga qaytish
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -62,38 +64,63 @@ export const VerifyOtpPage: React.FC = () => {
     setError("");
 
     try {
-      await axiosInstance.post("/auth/verify-register", { email:email, code:fullOtp });
-      // Kelajakda: authService.verifyOtp({ email, otp: fullOtp })
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      navigate("/dashboard");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError("Kodni tasdiqlashda xatolik yuz berdi.");
+      if (from === "forgot-password") {
+        // 🔑 Parolni tiklash OTP tasdiqlash
+        const response = await axiosInstance.post("/auth/verify-forgot-password", { 
+          email: email, 
+          code: fullOtp 
+        });
+        // Backend'dagi verifyForgotPasswordOtp token qaytaradi (AuthResponse.from(resetToken))
+        const resetToken = response.data.accessToken; 
+        
+        // Tokenni ResetPassword sahifasiga uzatamiz
+        navigate("/reset-password", { state: { email, token: resetToken } });
+      } else {
+        // 📝 Ro'yxatdan o'tish OTP tasdiqlash
+        await axiosInstance.post("/auth/verify-register", { 
+          email: email, 
+          code: fullOtp 
+        });
+        navigate("/login"); // Aktiv bo'lgandan keyin login qilishga yo'naltiramiz
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      // Backenddan qaytgan xatolik matnini chiqarish (masalan: "Mismatch code" yoki "OTP is expired")
+      setError(err.response?.data?.message || "Kodni tasdiqlashda xatolik yuz berdi.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResend = () => {
-    setTimer(60);
+  const handleResend = async () => {
+    setIsLoading(true);
     setError("");
-    // Kelajakda: API orqali kodni qayta jo'natish
+    try {
+      if (from === "forgot-password") {
+        await axiosInstance.post("/auth/forgot-password", { email });
+      } else {
+        // Ro'yxatdan o'tish uchun kodni qayta jo'natish endpointi yo'q bo'lsa, /forgot-password ham ishlashi mumkin
+        // Lekin mantiqan register metodini qayta ishlatish yoki resend-otp ochish kerak.
+        await axiosInstance.post("/auth/forgot-password", { email }); 
+      }
+      setTimer(60);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
+    } catch (err: any) {
+      setError("Kodni qayta yuborishda xatolik yuz berdi.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <AuthLayout title={t("verifyOtpTitle")} subtitle={t("verifyOtpSubtitle")}>
+    <AuthLayout title={t("verifyOtpTitle")} subtitle={`${t("verifyOtpSubtitle")} ${email}`}>
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-lg text-center"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-lg text-center border border-red-200">
             {error}
           </motion.div>
         )}
 
-        {/* OTP Inputlar guruhi */}
         <div className="flex justify-center gap-4">
           {otp.map((data, index) => (
             <input
@@ -110,32 +137,16 @@ export const VerifyOtpPage: React.FC = () => {
         </div>
 
         <div>
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
-          >
+          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} type="submit" disabled={isLoading} className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all">
             {isLoading ? t("verifying") : t("verifyCode")}
           </motion.button>
         </div>
 
-        {/* Qayta yuborish taymeri */}
         <div className="text-center text-sm text-slate-600 dark:text-slate-400">
           {timer > 0 ? (
-            <span>
-              {t("resendCode")}{" "}
-              <strong className="text-blue-600 dark:text-blue-400">
-                {timer}s
-              </strong>
-            </span>
+            <span>{t("resendCode")} <strong className="text-blue-600 dark:text-blue-400">{timer}s</strong></span>
           ) : (
-            <button
-              type="button"
-              onClick={handleResend}
-              className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 underline transition-colors"
-            >
+            <button type="button" onClick={handleResend} className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 underline transition-colors">
               {t("regenerateCode")}
             </button>
           )}
