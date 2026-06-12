@@ -20,7 +20,7 @@ public class AuthController {
         authService.register(request);
         return ResponseEntity.ok("OTP verification sent to email");
     }
-    @PostMapping("/verifiy-register")
+    @PostMapping("/verify-register")
     public ResponseEntity<String> verifyRegister(@RequestBody OtpRequest request){
         authService.verifyRegisterOtp(request);
         return ResponseEntity.ok("Your account successfully activated");

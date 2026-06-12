@@ -4,6 +4,7 @@ import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
 import {motion} from 'framer-motion'
 import { useTranslation } from 'react-i18next';
+import axiosInstance from '../../../services/api';
 export const ForgotPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export const ForgotPasswordPage: React.FC = () => {
     setError('');
 
     try {
+      await axiosInstance.post("/auth/forgot-password",{email})
       // Kelajakda: authService.forgotPassword(email)
       await new Promise((resolve) => setTimeout(resolve, 1200));
       setIsSent(true);

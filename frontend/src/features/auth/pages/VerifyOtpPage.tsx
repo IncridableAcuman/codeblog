@@ -1,20 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { AuthLayout } from '../components/AuthLayout';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { AuthLayout } from "../components/AuthLayout";
+import { useTranslation } from "react-i18next";
+import axiosInstance from "../../../services/api";
 
 export const VerifyOtpPage: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || 'sizning emailingiz';
-  
-  const [otp, setOtp] = useState<string[]>(new Array(4).fill(''));
+  const email = location.state?.email || "sizning emailingiz";
+
+  const [otp, setOtp] = useState<string[]>(new Array(4).fill(""));
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [timer, setTimer] = useState(60);
-  
+
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
   // Kodni qayta yuborish taymeri
@@ -33,40 +34,39 @@ export const VerifyOtpPage: React.FC = () => {
     setOtp(newOtp);
 
     // Agar raqam kiritilsa, keyingi inputga fokus berish
-    if (element.value !== '' && index < 3) {
+    if (element.value !== "" && index < 3) {
       inputRefs.current[index + 1].focus();
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number,
+  ) => {
     // Backspace bosilganda orqaga qaytish
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fullOtp = otp.join('');
-    
+    const fullOtp = otp.join("");
+
     if (fullOtp.length < 4) {
       setError("Iltimos, barcha kataklarni to'ldiring.");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
+      await axiosInstance.post("/auth/verify-register", { email:email, code:fullOtp });
       // Kelajakda: authService.verifyOtp({ email, otp: fullOtp })
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      if (fullOtp === '1234') { // Test uchun kod: 1234
-        navigate('/dashboard');
-      } else {
-        setError("Tasdiqlash kodi noto'g'ri. (Test kod: 1234)");
-      }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      navigate("/dashboard");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Kodni tasdiqlashda xatolik yuz berdi.");
     } finally {
@@ -76,15 +76,15 @@ export const VerifyOtpPage: React.FC = () => {
 
   const handleResend = () => {
     setTimer(60);
-    setError('');
+    setError("");
     // Kelajakda: API orqali kodni qayta jo'natish
   };
 
   return (
-    <AuthLayout title={t('verifyOtpTitle')} subtitle={t('verifyOtpSubtitle')}>
+    <AuthLayout title={t("verifyOtpTitle")} subtitle={t("verifyOtpSubtitle")}>
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
         {error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-lg text-center"
@@ -117,21 +117,26 @@ export const VerifyOtpPage: React.FC = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
           >
-            {isLoading ? t('verifying') : t('verifyCode')}
+            {isLoading ? t("verifying") : t("verifyCode")}
           </motion.button>
         </div>
 
         {/* Qayta yuborish taymeri */}
         <div className="text-center text-sm text-slate-600 dark:text-slate-400">
           {timer > 0 ? (
-            <span>{t('resendCode')} <strong className="text-blue-600 dark:text-blue-400">{timer}s</strong></span>
+            <span>
+              {t("resendCode")}{" "}
+              <strong className="text-blue-600 dark:text-blue-400">
+                {timer}s
+              </strong>
+            </span>
           ) : (
             <button
               type="button"
               onClick={handleResend}
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 underline transition-colors"
             >
-              {t('regenerateCode')}
+              {t("regenerateCode")}
             </button>
           )}
         </div>

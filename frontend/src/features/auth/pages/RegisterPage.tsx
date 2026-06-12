@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
 import { useTranslation } from 'react-i18next';
+import axiosInstance from '../../../services/api';
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ export const RegisterPage: React.FC = () => {
     setIsLoading(true);
 
     try {
+
+      await axiosInstance.post("/auth/register",{fullName,email,password});
       // Kelajakda: authService.register({ fullName, email, password })
       await new Promise((resolve) => setTimeout(resolve, 1200));
       

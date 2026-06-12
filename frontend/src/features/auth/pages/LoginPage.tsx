@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
 import { useTranslation } from 'react-i18next';
+import axiosInstance from '../../../services/api';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,16 +21,13 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
+      const {data} = await axiosInstance.post("/auth/login",{email,password});
+      localStorage.setItem("accessToken",data.accessToken);
       // Kelajakda bu yerda API chaqiriladi: authService.login({ email, password })
       // Hozircha Mock Login (simulyatsiya)
       await new Promise((resolve) => setTimeout(resolve, 1200));
       
-      if (email === 'admin@code.uz' && password === 'password123') {
-        // Muvaffaqiyatli login
-        navigate('/dashboard');
-      } else {
-        setError("Email yoki parol noto'g'ri! (Test: admin@code.uz / password123)");
-      }
+     navigate("/");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Tizimga kirishda xatolik yuz berdi.");

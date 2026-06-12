@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
-import { AuthLayout } from '../components/AuthLayout';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { AuthLayout } from "../components/AuthLayout";
+import { useTranslation } from "react-i18next";
+import axiosInstance from "../../../services/api";
 
 export const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
       setError("Parollar bir-biriga mos kelmadi!");
@@ -27,12 +28,16 @@ export const ResetPasswordPage: React.FC = () => {
     setIsLoading(true);
 
     try {
+      await axiosInstance.post("/auth/reset-password", {
+        password,
+        confirmPassword,
+      });
       // Kelajakda: authService.resetPassword({ email, password })
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+
       // Muvaffaqiyatli o'zgargandan keyin login sahifasiga
-      navigate('/login');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      navigate("/login");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Parolni yangilashda xatolik yuz berdi.");
     } finally {
@@ -41,10 +46,13 @@ export const ResetPasswordPage: React.FC = () => {
   };
 
   return (
-    <AuthLayout title={t('resetPasswordTitle')} subtitle={t('resetPasswordSubTitle')}>
+    <AuthLayout
+      title={t("resetPasswordTitle")}
+      subtitle={t("resetPasswordSubTitle")}
+    >
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         {error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-lg"
@@ -57,14 +65,14 @@ export const ResetPasswordPage: React.FC = () => {
           {/* Yangi parol */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              {t('newPassword')}
+              {t("newPassword")}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <FiLock size={18} />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -84,14 +92,14 @@ export const ResetPasswordPage: React.FC = () => {
           {/* Yangi parolni tasdiqlash */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              {t('confirmNewPassword')}
+              {t("confirmNewPassword")}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <FiLock size={18} />
               </div>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -110,7 +118,7 @@ export const ResetPasswordPage: React.FC = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
           >
-            {isLoading ? t('saving') : t('updatePassword')}
+            {isLoading ? t("saving") : t("updatePassword")}
           </motion.button>
         </div>
       </form>
