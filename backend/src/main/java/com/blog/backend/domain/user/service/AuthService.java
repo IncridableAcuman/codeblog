@@ -13,6 +13,8 @@ import com.blog.backend.security.util.CookieUtil;
 import com.blog.backend.security.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,5 +106,12 @@ public class AuthService {
         tokenService.saveToken(user,newRefreshToken);
         cookieUtil.addCookie(newRefreshToken,response);
         return AuthResponse.from(newAccessToken);
+    }
+    public UserResponse getMe(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assert authentication != null;
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+        assert user != null;
+        return UserResponse.from(user);
     }
 }
