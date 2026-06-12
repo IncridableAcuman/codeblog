@@ -51,4 +51,14 @@ public class BlogEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void persist(){
+        createdAt = LocalDateTime.now();
+        updatedAt=LocalDateTime.now();
+    }
+    @PreUpdate
+    public void update(){
+        updatedAt=LocalDateTime.now();
+    }
 }
