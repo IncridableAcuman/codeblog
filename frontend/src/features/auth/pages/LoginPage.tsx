@@ -5,6 +5,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { AuthLayout } from '../components/AuthLayout';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../../../services/api';
+import { UseAuth } from '../../../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { setUser } = UseAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,10 +25,9 @@ export const LoginPage: React.FC = () => {
     try {
       const {data} = await axiosInstance.post("/auth/login",{email,password});
       localStorage.setItem("accessToken",data.accessToken);
-      // Kelajakda bu yerda API chaqiriladi: authService.login({ email, password })
-      // Hozircha Mock Login (simulyatsiya)
+      const userProfile = await  axiosInstance.get("/auth/me");
       await new Promise((resolve) => setTimeout(resolve, 1200));
-      
+      setUser(userProfile.data);
      navigate("/");
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

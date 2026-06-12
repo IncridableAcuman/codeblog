@@ -1,20 +1,32 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiSun, FiMoon, FiGlobe, FiLogOut } from "react-icons/fi";
 import { UseTheme } from "../../context/ThemeContext";
 import { UseAuth } from "../../context/AuthContext";
+import axiosInstance from "../../services/api";
 
 export const Navbar: React.FC = () => {
   const { i18n, t } = useTranslation();
   const { theme, toggleTheme } = UseTheme();
-  const { user } = UseAuth();
-  const navigate = useNavigate();
+  const { user,setUser } = UseAuth();
 
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
+
+const handleLogout = async () => {
+  try {
+    await axiosInstance.post("/auth/logout", {}); 
+  } catch (error) {
+    console.log("Backend logout error:", error);
+  } finally {
+    localStorage.removeItem("accessToken");
+    if (setUser) setUser(null); 
+    window.location.href = "/login";
+  }
+};
 
   return (
     <nav className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-300">
@@ -72,7 +84,7 @@ export const Navbar: React.FC = () => {
               </Link>
               <button
                 onClick={() => {
-                  navigate("/login");
+                  handleLogout()
                 }}
                 className="p-2 text-slate-400 hover:text-red-500 rounded-xl transition-colors"
                 title="Chiqish"

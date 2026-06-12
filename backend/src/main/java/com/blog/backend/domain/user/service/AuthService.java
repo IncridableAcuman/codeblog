@@ -1,9 +1,21 @@
 package com.blog.backend.domain.user.service;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.blog.backend.domain.otp.dto.OtpRequest;
 import com.blog.backend.domain.otp.service.OtpService;
 import com.blog.backend.domain.token.service.TokenService;
-import com.blog.backend.domain.user.dto.*;
+import com.blog.backend.domain.user.dto.AuthResponse;
+import com.blog.backend.domain.user.dto.ForgotPasswordRequest;
+import com.blog.backend.domain.user.dto.LoginRequest;
+import com.blog.backend.domain.user.dto.RegisterRequest;
+import com.blog.backend.domain.user.dto.ResetPasswordRequest;
+import com.blog.backend.domain.user.dto.UserResponse;
 import com.blog.backend.domain.user.entity.UserEntity;
 import com.blog.backend.domain.user.entity.enums.Role;
 import com.blog.backend.domain.user.repository.UserRepository;
@@ -11,14 +23,9 @@ import com.blog.backend.exception.custom.CustomBadRequestException;
 import com.blog.backend.exception.custom.CustomNotFoundException;
 import com.blog.backend.security.util.CookieUtil;
 import com.blog.backend.security.util.JwtUtil;
+
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +74,10 @@ public class AuthService {
     }
 
     public void logout(String refreshToken,HttpServletResponse response){
+        if (refreshToken == null || refreshToken.isEmpty() || !jwtUtil.validateToken(refreshToken)) {
+        cookieUtil.clearCookie(response);
+        return;
+        }
         UserEntity user = getUserFromToken(refreshToken);
         tokenService.removeToken(user);
         cookieUtil.clearCookie(response);

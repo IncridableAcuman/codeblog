@@ -10,27 +10,32 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-    (config:InternalAxiosRequestConfig) =>{
+    (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem("accessToken");
-        if (token){
+        if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },
-    (error:AxiosError) => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error)
 );
 
 axiosInstance.interceptors.response.use(
-    (response:AxiosResponse)=> response,
-    async (error:AxiosError)=>{
+    (response: AxiosResponse) => response,
+    async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & {
-            _retry:boolean
+            _retry: boolean
         }
-        if((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry){
+        if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
             originalRequest._retry = true;
+            // Agar xato refresh so'rovining o'zidan qaytsa, cheksiz siklga kirmaslik uchun darhol to'xtatamiz
+            if (originalRequest.url?.includes('/auth/refresh')) {
+                localStorage.removeItem("accessToken");
+                return Promise.reject(error);
+            }
             try {
-                const {data} = await axiosInstance.get("/auth/refresh",{withCredentials: true});
-                localStorage.setItem("accessToken",data.accessToken);
+                const { data } = await axiosInstance.get("/auth/refresh", { withCredentials: true });
+                localStorage.setItem("accessToken", data.accessToken);
                 originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
                 return axiosInstance(originalRequest);
             } catch (error) {
