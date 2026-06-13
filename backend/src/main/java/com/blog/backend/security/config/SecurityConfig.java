@@ -1,7 +1,5 @@
 package com.blog.backend.security.config;
 
-import com.blog.backend.security.filter.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +10,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.blog.backend.security.filter.JwtAuthenticationFilter;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,10 +34,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                                 .requestMatchers("/swagger-ui.html","/swagger-ui/**","/api-docs","/api-docs/**").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/api/v1/blogs/**").permitAll()
+                                .requestMatchers("/files/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/v1/blogs").authenticated()
                                 .requestMatchers(HttpMethod.PATCH,"/api/v1/blogs/**").authenticated()
                                 .requestMatchers(HttpMethod.DELETE,"/api/v1/blogs").authenticated()
-                        
+
                                 .requestMatchers("/api/v1/auth/**").permitAll().anyRequest().authenticated()
                         )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

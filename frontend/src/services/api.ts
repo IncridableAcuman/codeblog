@@ -4,9 +4,6 @@ const axiosInstance: AxiosInstance = axios.create({
     withCredentials: true,
     baseURL: "http://localhost:8080/api/v1",
     timeout: 10000,
-    headers: {
-        "Content-Type": "application/json"
-    }
 });
 
 axiosInstance.interceptors.request.use(

@@ -1,25 +1,40 @@
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { FiSearch } from 'react-icons/fi';
-import { mockBlogs } from '../../../services/mockData';
-import { BlogCard } from '../components/BlogCard';
-import type { BlogCategory } from '../../../types/blog';
+import React, { useState, useMemo, useEffect } from "react";
+import { motion } from "framer-motion";
+import { FiSearch } from "react-icons/fi";
+import { BlogCard } from "../components/BlogCard";
+import type { BlogCategory } from "../../../types/blog";
+import { blogApiService } from "../../../services/blogService";
 
-const CATEGORIES: ('All' | BlogCategory)[] = ['All', 'Frontend', 'Backend', 'Mobile', 'DevOps', 'AI & ML'];
+const CATEGORIES: ("All" | BlogCategory)[] = ["All", "FRONTEND", "BACKEND"];
 
 export const BlogListPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'All' | BlogCategory>('All');
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<"All" | string>(
+    "All",
+  );
+  const [loading, setLoading] = useState(true);
 
-  // Qidiruv va filtrlash mantig'i
+  useEffect(() => {
+    blogApiService
+      .getAllBlogs()
+      .then((data) => setBlogs(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
   const filteredBlogs = useMemo(() => {
-    return mockBlogs.filter((blog) => {
-      const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            blog.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === 'All' || blog.category === selectedCategory;
+    return blogs.filter((blog) => {
+      const matchesSearch =
+        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "All" || blog.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [blogs, searchQuery, selectedCategory]);
+
+  if (loading)
+    return <div className="text-center py-20">Maqolalar yuklanmoqda...</div>;
 
   return (
     <div className="space-y-8">
@@ -57,8 +72,8 @@ export const BlogListPage: React.FC = () => {
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-1.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
               selectedCategory === category
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
             }`}
           >
             {category}
@@ -68,7 +83,7 @@ export const BlogListPage: React.FC = () => {
 
       {/* Blog Kartalari Paneli */}
       {filteredBlogs.length > 0 ? (
-        <motion.div 
+        <motion.div
           layout
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
@@ -87,7 +102,9 @@ export const BlogListPage: React.FC = () => {
         </motion.div>
       ) : (
         <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">Hech qanday maqola topilmadi.</p>
+          <p className="text-slate-500 dark:text-slate-400">
+            Hech qanday maqola topilmadi.
+          </p>
         </div>
       )}
     </div>

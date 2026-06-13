@@ -1,31 +1,45 @@
-import React, { useState, useEffect, useRef } from 'react'; // 1. useRef qo'shildi
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiHeart, FiEye, FiCalendar, FiUser, FiArrowLeft, FiMessageSquare, FiDownload } from 'react-icons/fi'; // 2. FiDownload qo'shildi
-import { mockBlogs } from '../../../services/mockData';
-// @ts-ignore (html2pdf uchun turlar topilmasa xatolik bermasligi uchun)
+import { FiHeart, FiEye, FiCalendar, FiUser, FiArrowLeft, FiMessageSquare, FiDownload } from 'react-icons/fi';
 import html2pdf from 'html2pdf.js';
 import { UseAuth } from '../../../context/AuthContext';
+import { blogApiService } from '../../../services/blogService'; // Real API xizmati
 import type { BlogPost } from '../../../types/blog';
 
 export const BlogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { user, isAuthenticated } = UseAuth();
+  const { user } = UseAuth(); // Context'dan isAuthenticated olindi
   
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<BlogPost | null>(null); // Real backend modeli uchun
+  const [loading, setLoading] = useState<boolean>(true);
   const [commentText, setCommentText] = useState('');
   const [isLiked, setIsLiked] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // PDF-ga chiqarilishi kerak bo'lgan soha uchun ref
   const pdfContainerRef = useRef<HTMLDivElement>(null);
 
+  // Ma'lumotlarni backenddan yuklab olish
   useEffect(() => {
-    const foundPost = mockBlogs.find((b) => b.id === id);
-    if (foundPost) {
-      setPost(foundPost);
+    if (id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(true);
+      blogApiService.getBlogById(id)
+        .then((data) => {
+          setPost(data);
+        })
+        .catch((err) => {
+          console.error("Maqolani yuklashda xatolik:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
-  }, [id]);
+  }, [id, setLoading]);
+
+  if (loading) {
+    return <div className="text-center py-20 text-slate-600 dark:text-slate-400">Maqola yuklanmoqda...</div>;
+  }
 
   if (!post) {
     return (
@@ -36,30 +50,33 @@ export const BlogDetailPage: React.FC = () => {
     );
   }
 
-  // PDF yaratish va yuklab olish mantig'i
+  // Muallif ismi va rasm manzili (Backend strukturasiga mos)
+  const authorName = post.user?.fullName || "Noma'lum muallif";
+  const dateFormatted = post.createdAt ? new Date(post.createdAt).toLocaleDateString('uz-UZ') : "Yaqinda";
+  
+  const imageUrl = post.coverImage 
+    ? `http://localhost:8080/files/${post.coverImage}`
+    : "https://images.unsplash.com/photo-1677442136019-21780efad99a";
+
+  // PDF yaratish mantig'i
   const handleDownloadPDF = () => {
     if (!pdfContainerRef.current) return;
     setIsDownloading(true);
 
     const element = pdfContainerRef.current;
-    
-    // PDF sozlamalari
     const options = {
       margin:       [15, 15, 15, 15],
       filename:     `${post.title.toLowerCase().replace(/ /g, '-')}.pdf`,
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, // useCORS ochiq rasm xatoliklarini oldini oladi
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Eksport qilish
     html2pdf()
       .from(element)
       .set(options)
       .save()
-      .then(() => {
-        setIsDownloading(false);
-      })
+      .then(() => setIsDownloading(false))
       .catch((err: any) => {
         console.error(err);
         setIsDownloading(false);
@@ -67,12 +84,12 @@ export const BlogDetailPage: React.FC = () => {
   };
 
   const handleLike = () => {
-    if (!isAuthenticated) {
+    if (!user?.isActive) {
       alert("Like bosish uchun avval tizimga kiring!");
       return;
     }
     setIsLiked(!isLiked);
-    setPost((prev) => 
+    setPost((prev: any) => 
       prev ? { ...prev, likes: isLiked ? prev.likes - 1 : prev.likes + 1 } : null
     );
   };
@@ -81,32 +98,32 @@ export const BlogDetailPage: React.FC = () => {
     e.preventDefault();
     if (!commentText.trim() || !user) return;
 
-    const newComment: Comment = {
+    // Izoh qo'shish (Hozircha vaqtincha local state, backendda izohlar jadvali ochilgach api ulanadi)
+    const newComment = {
       id: `c-${Date.now()}`,
-      author: {
+      user: {
         id: user.id,
         fullName: user.fullName,
-        avatarUrl: user.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'
+        avatarUrl: user.avatarUrl
       },
       content: commentText,
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: new Date().toISOString()
     };
 
-    setPost((prev) => 
-      prev ? { ...prev, comments: [newComment, ...prev.comments] } : null
+    setPost((prev: any) => 
+      prev ? { ...prev, comments: [newComment, ...(prev.comments || [])] } : null
     );
     setCommentText('');
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Yuqori boshqaruv paneli (Tugmalar) */}
+      {/* Yuqori boshqaruv paneli */}
       <div className="flex items-center justify-between">
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
           <FiArrowLeft /> Bosh sahifaga qaytish
         </Link>
 
-        {/* PDF Yuklab olish tugmasi */}
         <button
           onClick={handleDownloadPDF}
           disabled={isDownloading}
@@ -117,9 +134,8 @@ export const BlogDetailPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 🌟 MANA SHU REF ICHIDAGI ELEMENTLARGINA PDF'GA CHIQADI */}
+      {/* PDF chop etiladigan soha */}
       <div ref={pdfContainerRef} className="space-y-6 bg-transparent p-1">
-        {/* Maqola sarlavhasi va metama'lumotlari */}
         <div className="space-y-4">
           <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-semibold rounded-lg">
             {post.category}
@@ -128,25 +144,25 @@ export const BlogDetailPage: React.FC = () => {
             {post.title}
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400 pt-2 border-b border-slate-100 dark:border-slate-800 pb-4">
-            <span className="flex items-center gap-1.5"><FiUser /> {post.author.fullName}</span>
-            <span className="flex items-center gap-1.5"><FiCalendar /> {post.createdAt}</span>
+            <span className="flex items-center gap-1.5"><FiUser /> {authorName}</span>
+            <span className="flex items-center gap-1.5"><FiCalendar /> {dateFormatted}</span>
             <span className="flex items-center gap-1.5"><FiEye /> {post.views} marta ko‘rilgan</span>
           </div>
         </div>
 
-        {/* Maqola muqova rasmi */}
+        {/* Muqova rasmi */}
         <div className="aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-          <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+          <img src={imageUrl} alt={post.title} crossOrigin="anonymous" className="w-full h-full object-cover" />
         </div>
 
-        {/* Maqola matni */}
+        {/* Maqola to'liq matni */}
         <div 
           className="prose prose-slate dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 leading-relaxed space-y-4"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>
 
-      {/* Like va Interaktiv tugmalar paneli (PDF-ga kirmaydi) */}
+      {/* Interaktiv tugmalar paneli */}
       <div className="flex items-center justify-between py-4 border-y border-slate-100 dark:border-slate-800">
         <motion.button
           whileTap={{ scale: 0.9 }}
@@ -162,16 +178,15 @@ export const BlogDetailPage: React.FC = () => {
         </motion.button>
 
         <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-          <FiMessageSquare /> {post.comments.length} ta fikrlar
+          <FiMessageSquare /> {post.comments ? post.comments.length : 0} ta fikrlar
         </div>
       </div>
 
-      {/* Kommentariyalar Bo‘limi (PDF-ga kirmaydi) */}
+      {/* Kommentariyalar bo'limi */}
       <div className="space-y-6">
         <h3 className="text-xl font-bold text-slate-900 dark:text-white">Fikr-mulohazalar</h3>
 
-        {/* Komment yozish formasi */}
-        {isAuthenticated ? (
+        {user?.isActive ? (
           <form onSubmit={handleCommentSubmit} className="space-y-3">
             <textarea
               rows={3}
@@ -193,10 +208,10 @@ export const BlogDetailPage: React.FC = () => {
           </p>
         )}
 
-        {/* Sharhlar ro‘yxati */}
+        {/* Izohlar ro'yxati */}
         <div className="space-y-4">
           <AnimatePresence>
-            {post.comments.map((comment) => (
+            {post.comments?.map((comment: any) => (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -206,10 +221,10 @@ export const BlogDetailPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <img src={comment.author.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} alt={comment.author.fullName} className="w-6 h-6 rounded-full object-cover" />
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">{comment.author.fullName}</span>
+                    <img src={comment.user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} alt={comment.user?.fullName} className="w-6 h-6 rounded-full object-cover" />
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">{comment.user?.fullName}</span>
                   </div>
-                  <span className="text-xs text-slate-400">{comment.createdAt}</span>
+                  <span className="text-xs text-slate-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className="text-sm text-slate-700 dark:text-slate-300 pl-8 leading-relaxed">
                   {comment.content}
@@ -218,7 +233,7 @@ export const BlogDetailPage: React.FC = () => {
             ))}
           </AnimatePresence>
 
-          {post.comments.length === 0 && (
+          {(!post.comments || post.comments.length === 0) && (
             <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-6">Hali hech kim fikr bildirmagan. Birinchi bo‘ling!</p>
           )}
         </div>

@@ -60,7 +60,7 @@ export const AppRoutes = () => {
         <Route index element={<BlogListPage />} />
         <Route
           path="blog/:id"
-          element={<div>Blog batafsil ko'rish sahifasi</div>}
+          element={<BlogDetailPage/>}
         />
         <Route path="blog/:id" element={<BlogDetailPage />} />
 

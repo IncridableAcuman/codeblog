@@ -1,29 +1,22 @@
-export interface Author {
-  id: string;
+export interface UserResponse {
+  id: number;
   fullName: string;
-  avatarUrl: string;
+  email: string;
+  avatarUrl?: string; // Agar backendda bor bo'lsa
 }
 
-export interface Comment {
-  id: string;
-  author: Author;
-  content: string;
-  createdAt: string;
-}
-
-export type BlogCategory = 'Frontend' | 'Backend' | 'Mobile' | 'DevOps' | 'AI & ML';
+export type BlogCategory = 'FRONTEND' | 'BACKEND';
 
 export interface BlogPost {
-  id: string;
+  id: number;          // Backendda Long -> Frontendda number
+  user: UserResponse;  // author emas, user!
   title: string;
-  description: string; // Qisqa matn (Karta uchun)
-  content: string;     // Rich text formatidagi to'liq matn
-  coverImage: string;
+  description: string;
+  content: string;
   category: BlogCategory;
-  author: Author;
-  likes: number;
-  likedBy: string[];   // Liked foydalanuvchilar ID ro'yxati (kelajak uchun)
-  comments: Comment[];
+  coverImage: string;
   views: number;
-  createdAt: string;
+  likes: number;
+  createdAt: string;   // LocalDateTime string bo'lib keladi
+  updatedAt: string;
 }
