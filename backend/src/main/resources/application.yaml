@@ -2,6 +2,10 @@ server:
   port: ${PORT}
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-file-request: 10MB
   datasource:
     url: ${DB_URL}
     username: ${DB_USER}
@@ -36,3 +40,7 @@ jwt:
   secret: ${JWT_SECRET}
   access_time: ${JWT_REFRESH_TIME}
   refresh_time: ${JWT_ACCESS_TIME}
+
+file:
+  upload:
+    dir: ./uploads

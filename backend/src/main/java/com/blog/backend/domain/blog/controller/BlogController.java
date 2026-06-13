@@ -18,8 +18,8 @@ import java.util.List;
 public class BlogController {
     private final BlogService blogService;
 
-    @PostMapping("/blog/create")
-    public ResponseEntity<BlogResponse> createBlog(@AuthenticationPrincipal UserEntity user, @Valid @RequestBody BlogRequest request){
+    @PostMapping
+    public ResponseEntity<BlogResponse> createBlog(@AuthenticationPrincipal UserEntity user, @Valid @ModelAttribute BlogRequest request){
         return ResponseEntity.ok(blogService.createBlog(user,request));
     }
     @GetMapping("/{id}")
@@ -30,8 +30,12 @@ public class BlogController {
     public ResponseEntity<List<BlogResponse>> getBlogs(@AuthenticationPrincipal UserEntity user){
         return ResponseEntity.ok(blogService.getBlogs(user));
     }
-    @DeleteMapping("/blog/{id}/remove")
+    @DeleteMapping("/{id}")
     public ResponseEntity<BlogResponse> removeBlog(@AuthenticationPrincipal UserEntity user,@PathVariable Long id){
         return ResponseEntity.ok(blogService.removeBlog(user,id));
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<BlogResponse> editBlog(@AuthenticationPrincipal UserEntity user,@PathVariable Long id,@ModelAttribute BlogRequest request){
+        return ResponseEntity.ok(blogService.editBlog(user,id,request));
     }
 }
