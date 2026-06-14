@@ -1,6 +1,5 @@
 import axiosInstance from "./api";
 
-
 export const blogApiService = {
   // 1. Hamma bloglarni olish
   getAllBlogs: async () => {
@@ -38,5 +37,11 @@ export const blogApiService = {
       },
     });
     return response.data;
+  },
+
+  // 6. Like bosish va qaytarib olish (Toggle) 🌟
+  toggleLike: async (id: string | number) => {
+    const response = await axiosInstance.post(`/blogs/${id}/like`);
+    return response.data; // Backenddan "Like added" yoki "Like removed" qaytadi
   }
 };

@@ -38,4 +38,8 @@ public class BlogController {
     public ResponseEntity<BlogResponse> editBlog(@AuthenticationPrincipal UserEntity user,@PathVariable Long id,@ModelAttribute BlogRequest request){
         return ResponseEntity.ok(blogService.editBlog(user,id,request));
     }
+    @PostMapping("/{id}/like")
+    public ResponseEntity<String> toggleLike(@AuthenticationPrincipal UserEntity user,@PathVariable Long id){
+        return ResponseEntity.ok(blogService.toggleLike(user,id));
+    }
 }

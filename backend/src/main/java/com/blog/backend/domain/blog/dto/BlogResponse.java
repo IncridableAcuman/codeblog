@@ -17,10 +17,11 @@ public record BlogResponse(
         String coverImage,
         int views,
         int likes,
+        boolean isLiked,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static BlogResponse from(BlogEntity blog, UserEntity user){
+    public static BlogResponse from(BlogEntity blog, UserEntity user,boolean isLikedByCurrentUser){
         return new BlogResponse(
                 blog.getId(),
                 UserResponse.from(user),
@@ -31,6 +32,7 @@ public record BlogResponse(
                 blog.getCoverImage(),
                 blog.getViews(),
                 blog.getLikes(),
+                isLikedByCurrentUser,
                 blog.getCreatedAt(),
                 blog.getUpdatedAt()
         );

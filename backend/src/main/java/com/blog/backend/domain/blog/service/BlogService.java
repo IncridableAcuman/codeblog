@@ -3,6 +3,8 @@ package com.blog.backend.domain.blog.service;
 import com.blog.backend.domain.blog.dto.BlogRequest;
 import com.blog.backend.domain.blog.dto.BlogResponse;
 import com.blog.backend.domain.blog.entity.BlogEntity;
+import com.blog.backend.domain.blog.entity.BlogLikeEntity;
+import com.blog.backend.domain.blog.repository.BlogLikeRepository;
 import com.blog.backend.domain.blog.repository.BlogRepository;
 import com.blog.backend.domain.user.entity.UserEntity;
 import com.blog.backend.exception.custom.CustomBadRequestException;
@@ -19,6 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BlogService {
     private final BlogRepository blogRepository;
+    private final BlogLikeRepository blogLikeRepository;
     private final FileUtil fileUtil;
 
     public BlogResponse createBlog(UserEntity user, BlogRequest request){
@@ -32,21 +35,25 @@ public class BlogService {
         blog.setViews(0);
         blog.setLikes(0);
         saveBlog(blog);
-        return BlogResponse.from(blog,user);
+        return BlogResponse.from(blog,user,false);
     }
 
     public BlogResponse getBlog(UserEntity user,Long id){
         BlogEntity blog = findBlogById(id);
         blog.setViews(blog.getViews() + 1);
         saveBlog(blog);
-        return BlogResponse.from(blog,user);
+        boolean isLiked = user != null && blogLikeRepository.existsByUserAndBlog(user,blog);
+        return BlogResponse.from(blog,user,isLiked);
     }
 
     public List<BlogResponse> getBlogs(UserEntity user){
         List<BlogEntity> blogs = blogRepository.findByUser(user);
         return blogs
                 .stream()
-                .map(blog-> BlogResponse.from(blog,user)).toList();
+                .map(blog->{
+                    boolean isLiked = user != null && blogLikeRepository.existsByUserAndBlog(user,blog);
+                    return BlogResponse.from(blog,user,isLiked);
+                }).toList();
     }
 
     @Transactional
@@ -55,8 +62,9 @@ public class BlogService {
         if (!blog.getUser().equals(user)){
             throw new CustomBadRequestException("Only author can delete this post");
         }
+        boolean isLiked = blogLikeRepository.existsByUserAndBlog(user,blog);
         blogRepository.delete(blog);
-        return BlogResponse.from(blog,user);
+        return BlogResponse.from(blog,user,isLiked);
     }
     public BlogResponse editBlog(UserEntity user,Long id,BlogRequest request){
         BlogEntity blog = findBlogById(id);
@@ -71,8 +79,36 @@ public class BlogService {
             blog.setCoverImage(fileUtil.saveFile(request.getImage()));
         }
         saveBlog(blog);
-        return BlogResponse.from(blog,user);
+        boolean isLiked = blogLikeRepository.existsByUserAndBlog(user,blog);
+        return BlogResponse.from(blog,user,isLiked);
     }
+
+    @Transactional
+    public String toggleLike(UserEntity user,Long blogLikeId){
+        BlogEntity blog = findBlogById(blogLikeId);
+
+        Optional<BlogLikeEntity> existingLike = blogLikeRepository.findByUserAndBlog(user,blog);
+
+        if (existingLike.isPresent()){
+            blogLikeRepository.delete(existingLike.get());
+
+            blog.setLikes(Math.max(0,blog.getLikes() - 1));
+            saveBlog(blog);
+
+            return "Like removed";
+        } else {
+            BlogLikeEntity newBlogLike = new BlogLikeEntity();
+            newBlogLike.setUser(user);
+            newBlogLike.setBlog(blog);
+            blogLikeRepository.save(newBlogLike);
+
+            blog.setLikes(blog.getLikes() + 1);
+            saveBlog(blog);
+
+            return "Like added";
+        }
+    }
+
     public BlogEntity findBlogById(Long id){
         return blogRepository.findById(id).orElseThrow(()-> new CustomNotFoundException("Blog post not found"));
     }
