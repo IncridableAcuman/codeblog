@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Ma'lumotlar Bazasi
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: blog-postgres-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-codeblog_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend (Java Spring Boot 4.0.6 - Java 21)
+  backend:
+    build:
+      context: ./backend # backend loyihangiz joylashgan papka nomi
+      dockerfile: Dockerfile
+    container_name: blog-backend-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/${DB_NAME:-codeblog_db}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-secret_password}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      postgres-db:
+        condition: service_healthy # Faqat DB to'liq tayyor bo'lgach backend ishga tushadi
+    networks:
+      - blog-network
+
+  # 3. Frontend (React 19 + Vite 8 + Tailwind v4)
+  frontend:
+    build:
+      context: ./frontend # frontend loyihangiz joylashgan papka nomi
+      dockerfile: Dockerfile
+    container_name: blog-frontend-app
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

@@ -4,10 +4,12 @@ import { UseAuth } from '../../../context/AuthContext';
 import type { BlogPost } from '../../../types/blog';
 
 export const useDashboard = () => {
-  const { user,loading,setLoading } = UseAuth();
+  const { user } = UseAuth();
+  const [loading,setLoading] = useState(true);
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     blogApiService.getAllBlogs()
       .then((data) => setBlogs(data))

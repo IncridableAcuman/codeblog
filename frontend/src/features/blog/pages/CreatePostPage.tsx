@@ -3,7 +3,6 @@ import { RichEditor } from '../../../components/editor/RichEditor';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { PostFormFields } from '../components/PostFormFields';
 import { ImageUpload } from '../components/ImageUpload';
-import { AiAssistantPanel } from '../components/AiAssistantPanel';
 
 
 export const CreatePostPage: React.FC = () => {
@@ -60,11 +59,6 @@ export const CreatePostPage: React.FC = () => {
             </button>
           </div>
         </form>
-      </div>
-
-      {/* O'ng tomondagi AI Paneli */}
-      <div className="lg:col-span-1">
-        <AiAssistantPanel />
       </div>
     </div>
   );

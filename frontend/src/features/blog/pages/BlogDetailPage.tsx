@@ -1,7 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, {  useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FiHeart, FiMessageSquare } from 'react-icons/fi';
-import html2pdf from 'html2pdf.js';
 import { useBlogDetail } from '../hooks/useBlogDetail';
 import { Link, useParams } from 'react-router-dom';
 import { BlogHeader } from '../components/BlogHeader';
@@ -12,7 +11,6 @@ import { BlogComments } from '../components/BlogComments';
 
 export const BlogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [isDownloading, setIsDownloading] = useState(false);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
 
   // Custom Hook orqali barcha ma'lumotlar va mantiqni olamiz
@@ -28,28 +26,6 @@ export const BlogDetailPage: React.FC = () => {
     handleCommentSubmit,
   } = useBlogDetail(id);
 
-  const handleDownloadPDF = () => {
-    if (!pdfContainerRef.current || !post) return;
-    setIsDownloading(true);
-
-    const options = {
-      margin:       [15, 15, 15, 15],
-      filename:     `${post.title.toLowerCase().replace(/ /g, '-')}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf()
-      .from(pdfContainerRef.current)
-      .set(options)
-      .save()
-      .then(() => setIsDownloading(false))
-      .catch((err) => {
-        console.error(err);
-        setIsDownloading(false);
-      });
-  };
 
   if (loading) {
     return <div className="text-center py-20 text-slate-600 dark:text-slate-400">Maqola yuklanmoqda...</div>;
@@ -67,7 +43,7 @@ export const BlogDetailPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* 1. Sarlavha Paneli */}
-      <BlogHeader onDownload={handleDownloadPDF} isDownloading={isDownloading} />
+      <BlogHeader />
 
       {/* 2. Asosiy Maqola Mazmuni */}
       <BlogContent post={post} pdfRef={pdfContainerRef} />

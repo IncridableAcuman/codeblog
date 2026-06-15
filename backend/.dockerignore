@@ -1,0 +1,21 @@
+# Gradle qurish jarayoni va kesh papkalari
+.gradle/
+build/
+out/
+
+# IDE (Dasturlash muhiti) sozlamalari
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Docker o'zining loglari va vaqtincha fayllari
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Tizim fayllari va loglar
+*.log
+.DS_Store
+Thumbs.db
