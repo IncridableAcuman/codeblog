@@ -1,11 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowLeft, FiDownload } from 'react-icons/fi';
-
-interface BlogHeaderProps {
-  onDownload: () => void;
-  isDownloading: boolean;
-}
+import type { BlogHeaderProps } from '../interfaces/BlogHeaderProps';
 
 export const BlogHeader: React.FC<BlogHeaderProps> = ({ onDownload, isDownloading }) => (
   <div className="flex items-center justify-between">

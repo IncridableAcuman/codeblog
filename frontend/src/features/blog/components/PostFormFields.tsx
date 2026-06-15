@@ -1,16 +1,8 @@
 import React from 'react';
 import type { BlogCategory } from '../../../types/blog';
+import type { PostFormFieldsProps } from '../interfaces/PostFormFieldsProps';
 
 const CATEGORIES: BlogCategory[] = ['FRONTEND', 'BACKEND'];
-
-interface PostFormFieldsProps {
-  title: string;
-  setTitle: (val: string) => void;
-  category: BlogCategory;
-  setCategory: (val: BlogCategory) => void;
-  description: string;
-  setDescription: (val: string) => void;
-}
 
 export const PostFormFields: React.FC<PostFormFieldsProps> = ({
   title, setTitle,

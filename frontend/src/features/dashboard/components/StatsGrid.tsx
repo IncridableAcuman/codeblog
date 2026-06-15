@@ -1,11 +1,6 @@
 import React from 'react';
 import { FiBookOpen, FiEye, FiHeart } from 'react-icons/fi';
-
-interface StatsGridProps {
-  postsCount: number;
-  totalViews: number;
-  totalLikes: number;
-}
+import type { StatsGridProps } from '../interfaces/StatsGridProps';
 
 export const StatsGrid: React.FC<StatsGridProps> = ({ postsCount, totalViews, totalLikes }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

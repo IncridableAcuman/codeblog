@@ -1,12 +1,9 @@
 import React from "react";
 import type { BlogCategory } from "../../../types/blog";
+import type { CategoryFiltersProps } from "../interfaces/CategoryFiltersProps";
 
 const CATEGORIES: ("All" | BlogCategory)[] = ["All", "FRONTEND", "BACKEND"];
 
-interface CategoryFiltersProps {
-  selectedCategory: string;
-  onCategorySelect: (category: string) => void;
-}
 
 export const CategoryFilters: React.FC<CategoryFiltersProps> = ({ selectedCategory, onCategorySelect }) => (
   <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">

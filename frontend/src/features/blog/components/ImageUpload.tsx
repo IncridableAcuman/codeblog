@@ -1,10 +1,6 @@
 import React from 'react';
 import { FiUpload } from 'react-icons/fi';
-
-interface ImageUploadProps {
-  image: File | null;
-  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
+import type { ImageUploadProps } from '../interfaces/ImageUploadProps';
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({ image, onFileChange }) => (
   <div>

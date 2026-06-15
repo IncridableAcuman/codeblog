@@ -1,12 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiEye, FiHeart, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import type { BlogPost } from '../../../types/blog';
-
-interface BlogTableProps {
-  posts: BlogPost[];
-  onDelete: (id: number, title: string) => void;
-}
+import type { BlogTableProps } from '../interfaces/BlogTableProps';
 
 export const BlogTable: React.FC<BlogTableProps> = ({ posts, onDelete }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">

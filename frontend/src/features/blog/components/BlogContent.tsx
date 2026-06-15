@@ -1,11 +1,6 @@
 import React from 'react';
 import { FiUser, FiCalendar, FiEye } from 'react-icons/fi';
-import type { BlogPost } from '../../../types/blog';
-
-interface BlogContentProps {
-  post: BlogPost;
-  pdfRef: React.RefObject<HTMLDivElement | null>;
-}
+import type { BlogContentProps } from '../interfaces/BlogContentProps';
 
 export const BlogContent: React.FC<BlogContentProps> = ({ post, pdfRef }) => {
   const authorName = post.user?.fullName || "Noma'lum muallif";

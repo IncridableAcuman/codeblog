@@ -1,16 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { CommentType } from '../../../types/comment';
-import type { User } from '../../../types/user';
-
-interface BlogCommentsProps {
-  user: User | null;
-  comments: CommentType[];
-  commentText: string;
-  setCommentText: (text: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-}
+import type { BlogCommentsProps } from '../interfaces/BlogCommentsProps';
 
 export const BlogComments: React.FC<BlogCommentsProps> = ({ user, comments, commentText, setCommentText, onSubmit }) => (
   <div className="space-y-6">

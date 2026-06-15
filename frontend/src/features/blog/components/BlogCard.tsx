@@ -2,14 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiEye, FiHeart } from 'react-icons/fi';
-import type { BlogPost } from '../../../types/blog';
-
-interface BlogCardProps {
-  post: BlogPost; // Endi to'liq tiplashtirilgan
-}
+import type { BlogCardProps } from '../interfaces/BlogCardProps';
 
 export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
-  // Backenddan kelayotgan user ma'lumotlari
   const authorName = post.user?.fullName || "Noma'lum muallif";
   const avatar = post.user?.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100";
   

@@ -1,10 +1,6 @@
 import React from "react";
 import { FiSearch } from "react-icons/fi";
-
-interface BlogSearchHeaderProps {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-}
+import type { BlogSearchHeaderProps } from "../interfaces/BlogSearchHeaderProps";
 
 export const BlogSearchHeader: React.FC<BlogSearchHeaderProps> = ({ searchQuery, onSearchChange }) => (
   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
