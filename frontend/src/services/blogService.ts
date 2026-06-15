@@ -44,4 +44,17 @@ export const blogApiService = {
     const response = await axiosInstance.post(`/blogs/${id}/like`);
     return response.data; // Backenddan "Like added" yoki "Like removed" qaytadi
   }
+
+  // 7. Maqolaga tegishli barcha izohlarni olish
+  getComments: async (blogId: string | number) => {
+    const response = await axiosInstance.get(`/blogs/${blogId}/comments`);
+    return response.data;
+  },
+
+  // 8. Maqolaga yangi izoh qoldirish
+  addComment: async (blogId: string | number, content: string) => {
+    // Backend @RequestBody sifatida JSON kutayotgani uchun obyekt ko'rinishida yuboramiz
+    const response = await axiosInstance.post(`/blogs/${blogId}/comments`, { content });
+    return response.data;
+  }
 };
