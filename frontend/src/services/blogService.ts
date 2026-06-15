@@ -43,7 +43,7 @@ export const blogApiService = {
   toggleLike: async (id: string | number) => {
     const response = await axiosInstance.post(`/blogs/${id}/like`);
     return response.data; // Backenddan "Like added" yoki "Like removed" qaytadi
-  }
+  },
 
   // 7. Maqolaga tegishli barcha izohlarni olish
   getComments: async (blogId: string | number) => {

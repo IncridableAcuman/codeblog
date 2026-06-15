@@ -32,7 +32,7 @@ public class CommentService {
         return CommentResponse.from(comment);
     }
     public List<CommentResponse> getCommentByBlogId(Long blogId){
-        List<CommentEntity> comments = commentRepository.findByBlogIdAndOrderByCreatedAtDesc(blogId);
+        List<CommentEntity> comments = commentRepository.findByBlogIdOrderByCreatedAtDesc(blogId);
 
         return comments
                 .stream()

@@ -7,11 +7,24 @@ import { UseAuth } from '../../../context/AuthContext';
 import { blogApiService } from '../../../services/blogService';
 import type { BlogPost } from '../../../types/blog';
 
+// Izohlar uchun interfeys (Backend CommentResponse modeliga mos)
+interface CommentType {
+  id: number;
+  user: {
+    id: number;
+    fullName: string;
+    avatarUrl?: string;
+  };
+  content: string;
+  createdAt: string;
+}
+
 export const BlogDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = UseAuth();
 
   const [post, setPost] = useState<BlogPost | null>(null);
+  const [comments, setComments] = useState<CommentType[]>([]); // 🌟 Haqiqiy kommentariyalar uchun state
   const [loading, setLoading] = useState<boolean>(true);
   const [commentText, setCommentText] = useState('');
   const [isLiked, setIsLiked] = useState(false);
@@ -19,22 +32,26 @@ export const BlogDetailPage: React.FC = () => {
 
   const pdfContainerRef = useRef<HTMLDivElement>(null);
 
-  // Ma'lumotlarni backenddan yuklab olish
+  // Ma'lumotlarni yuklab olish
   useEffect(() => {
     if (id) {
       setLoading(true);
-      blogApiService.getBlogById(id)
-          .then((data) => {
-            setPost(data);
-            // 🌟 Backenddan kelgan isLiked qiymatini local state-ga o'rnatamiz
-            setIsLiked(data.isLiked);
-          })
-          .catch((err) => {
-            console.error("Maqolani yuklashda xatolik:", err);
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+      // 🌟 Maqola va izohlarni parallel yuklaymiz (Performance uchun optimization)
+      Promise.all([
+        blogApiService.getBlogById(id),
+        blogApiService.getComments(id)
+      ])
+        .then(([postData, commentsData]) => {
+          setPost(postData);
+          setIsLiked(postData.isLiked);
+          setComments(commentsData); // Backenddan kelgan real izohlar
+        })
+        .catch((err) => {
+          console.error("Ma'lumotlarni yuklashda xatolik:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [id]);
 
@@ -82,7 +99,6 @@ export const BlogDetailPage: React.FC = () => {
         });
   };
 
-  // 🌟 Haqiqiy Real-Time Like Tugmasi Integratsiyasi
   const handleLike = async () => {
     if (!user) {
       alert("Like bosish uchun avval tizimga kiring!");
@@ -90,18 +106,15 @@ export const BlogDetailPage: React.FC = () => {
     }
 
     try {
-      // Optimistic Update: Backend javobini kutmasdan UI'ni o'zgartirib turamiz (Tezkorlik hissi uchun)
       const currentLikedStatus = isLiked;
       setIsLiked(!currentLikedStatus);
       setPost((prev: any) =>
           prev ? { ...prev, likes: currentLikedStatus ? prev.likes - 1 : prev.likes + 1 } : null
       );
 
-      // Backend API ga so'rov yuborish (/api/v1/blogs/{id}/like)
       await blogApiService.toggleLike(post.id);
     } catch (err) {
       console.error("Like bosishda xatolik yuz berdi:", err);
-      // Agar API xato bersa, eski holatiga qaytaramiz (Rollback)
       setIsLiked(isLiked);
       setPost((prev: any) =>
           prev ? { ...prev, likes: isLiked ? prev.likes + 1 : prev.likes - 1 } : null
@@ -110,25 +123,22 @@ export const BlogDetailPage: React.FC = () => {
     }
   };
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  // 🌟 Real API ga izoh yuborish mantiqi
+  const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim() || !user) return;
 
-    const newComment = {
-      id: `c-${Date.now()}`,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        avatarUrl: user.avatarUrl
-      },
-      content: commentText,
-      createdAt: new Date().toISOString()
-    };
-
-    setPost((prev: any) =>
-        prev ? { ...prev, comments: [newComment, ...(prev.comments || [])] } : null
-    );
-    setCommentText('');
+    try {
+      // API orqali backendga saqlash (/api/v1/blogs/{id}/comments)
+      const savedComment = await blogApiService.addComment(post.id, commentText);
+      
+      // Backend qaytargan real yangi izohni ro'yxatning eng yuqorisiga qo'shish
+      setComments((prev) => [savedComment, ...prev]);
+      setCommentText('');
+    } catch (err) {
+      console.error("Izoh qoldirishda xatolik:", err);
+      alert("Izoh yuborishda muammo yuz berdi. Qaytadan urinib ko'ring.");
+    }
   };
 
   return (
@@ -173,7 +183,6 @@ export const BlogDetailPage: React.FC = () => {
           />
         </div>
 
-        {/* Interaktiv tugmalar paneli */}
         <div className="flex items-center justify-between py-4 border-y border-slate-100 dark:border-slate-800">
           <motion.button
               whileTap={{ scale: 0.9 }}
@@ -184,7 +193,6 @@ export const BlogDetailPage: React.FC = () => {
                       : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-red-500'
               }`}
           >
-            {/* Framer motion orqali Like bosilganda yurakchaning urish (scale) effekti */}
             <motion.div animate={{ scale: isLiked ? [1, 1.3, 1] : 1 }} transition={{ duration: 0.3 }}>
               <FiHeart className={isLiked ? 'fill-current text-red-500' : ''} size={18} />
             </motion.div>
@@ -192,7 +200,8 @@ export const BlogDetailPage: React.FC = () => {
           </motion.button>
 
           <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-            <FiMessageSquare /> {post.comments ? post.comments.length : 0} ta fikrlar
+            {/* 🌟 Local array uzunligi real-time aks ettiriladi */}
+            <FiMessageSquare /> {comments.length} ta fikrlar
           </div>
         </div>
 
@@ -224,7 +233,7 @@ export const BlogDetailPage: React.FC = () => {
 
           <div className="space-y-4">
             <AnimatePresence>
-              {post.comments?.map((comment: any) => (
+              {comments.map((comment) => (
                   <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -234,10 +243,16 @@ export const BlogDetailPage: React.FC = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <img src={comment.user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} alt={comment.user?.fullName} className="w-6 h-6 rounded-full object-cover" />
+                        <img 
+                          src={comment.user?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'} 
+                          alt={comment.user?.fullName} 
+                          className="w-6 h-6 rounded-full object-cover" 
+                        />
                         <span className="text-sm font-semibold text-slate-900 dark:text-white">{comment.user?.fullName}</span>
                       </div>
-                      <span className="text-xs text-slate-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                      <span className="text-xs text-slate-400">
+                        {new Date(comment.createdAt).toLocaleDateString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
                     <p className="text-sm text-slate-700 dark:text-slate-300 pl-8 leading-relaxed">
                       {comment.content}
@@ -246,7 +261,7 @@ export const BlogDetailPage: React.FC = () => {
               ))}
             </AnimatePresence>
 
-            {(!post.comments || post.comments.length === 0) && (
+            {comments.length === 0 && (
                 <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-6">Hali hech kim fikr bildirmagan. Birinchi bo‘ling!</p>
             )}
           </div>
