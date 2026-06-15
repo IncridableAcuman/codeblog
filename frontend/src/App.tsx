@@ -9,7 +9,7 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter> {/* Mana shu yerda aniq ko'rinib turadi */}
+        <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

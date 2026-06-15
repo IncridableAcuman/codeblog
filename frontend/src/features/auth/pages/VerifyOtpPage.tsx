@@ -1,156 +1,57 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React from "react";
 import { motion } from "framer-motion";
-import { AuthLayout } from "../components/AuthLayout";
 import { useTranslation } from "react-i18next";
-import axiosInstance from "../../../services/api";
+import { AuthLayout } from "../components/AuthLayout";
+import { useVerifyOtp } from "../hooks/useVerifyOtp";
+import { OtpInputGroup } from "../components/OtpInputGroup";
+import { TimerSection } from "../components/TimerSection";
+import { AlertMessage } from "../components/AlertMessage";
 
 export const VerifyOtpPage: React.FC = () => {
   const { t } = useTranslation();
-  const location = useLocation();
-  const navigate = useNavigate();
-  
-  // State xavfsizligini ta'minlash
-  const email = location.state?.email;
-  const from = location.state?.from || "register"; // 'register' yoki 'forgot-password'
-
-  const [otp, setOtp] = useState<string[]>(new Array(4).fill(""));
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [timer, setTimer] = useState(60);
-
-  const inputRefs = useRef<HTMLInputElement[]>([]);
-
-  useEffect(() => {
-    if (!email) {
-      navigate("/login");
-    }
-  }, [email, navigate]);
-
-  useEffect(() => {
-    if (timer > 0) {
-      const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-      return () => clearInterval(interval);
-    }
-  }, [timer]);
-
-  const handleChange = (element: HTMLInputElement, index: number) => {
-    if (isNaN(Number(element.value))) return;
-    const newOtp = [...otp];
-    newOtp[index] = element.value;
-    setOtp(newOtp);
-
-    if (element.value !== "" && index < 3) {
-      inputRefs.current[index + 1].focus();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1].focus();
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const fullOtp = otp.join("");
-
-    if (fullOtp.length < 4) {
-      setError("Iltimos, barcha kataklarni to'ldiring.");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-
-    try {
-      if (from === "forgot-password") {
-        // 🔑 Parolni tiklash OTP tasdiqlash
-        const response = await axiosInstance.post("/auth/verify-forgot-password", { 
-          email: email, 
-          code: fullOtp 
-        });
-        // Backend'dagi verifyForgotPasswordOtp token qaytaradi (AuthResponse.from(resetToken))
-        const resetToken = response.data.accessToken; 
-        
-        // Tokenni ResetPassword sahifasiga uzatamiz
-        navigate("/reset-password", { state: { email, token: resetToken } });
-      } else {
-        // 📝 Ro'yxatdan o'tish OTP tasdiqlash
-        await axiosInstance.post("/auth/verify-register", { 
-          email: email, 
-          code: fullOtp 
-        });
-        navigate("/login"); // Aktiv bo'lgandan keyin login qilishga yo'naltiramiz
-      }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      // Backenddan qaytgan xatolik matnini chiqarish (masalan: "Mismatch code" yoki "OTP is expired")
-      setError(err.response?.data?.message || "Kodni tasdiqlashda xatolik yuz berdi.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    setIsLoading(true);
-    setError("");
-    try {
-      if (from === "forgot-password") {
-        await axiosInstance.post("/auth/forgot-password", { email });
-      } else {
-        // Ro'yxatdan o'tish uchun kodni qayta jo'natish endpointi yo'q bo'lsa, /forgot-password ham ishlashi mumkin
-        // Lekin mantiqan register metodini qayta ishlatish yoki resend-otp ochish kerak.
-        await axiosInstance.post("/auth/forgot-password", { email }); 
-      }
-      setTimer(60);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-    } catch (err: any) {
-      setError("Kodni qayta yuborishda xatolik yuz berdi.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    email,
+    otp,
+    isLoading,
+    error,
+    timer,
+    inputRefs,
+    handleChange,
+    handleKeyDown,
+    handleSubmit,
+    handleResend,
+  } = useVerifyOtp();
 
   return (
-    <AuthLayout title={t("verifyOtpTitle")} subtitle={`${t("verifyOtpSubtitle")} ${email}`}>
+    <AuthLayout title={t("verifyOtpTitle")} subtitle={`${t("verifyOtpSubtitle")} ${email || ""}`}>
       <form className="mt-6 space-y-6" onSubmit={handleSubmit}>
-        {error && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-lg text-center border border-red-200">
-            {error}
-          </motion.div>
-        )}
+        
+        {/* 1. Xatolik xabari */}
+        {error && <AlertMessage message={error} type="error" />}
 
-        <div className="flex justify-center gap-4">
-          {otp.map((data, index) => (
-            <input
-              key={index}
-              type="text"
-              maxLength={1}
-              ref={(el) => (inputRefs.current[index] = el as HTMLInputElement)}
-              value={data}
-              onChange={(e) => handleChange(e.target, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-14 h-14 text-center text-2xl font-bold border-2 border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-            />
-          ))}
-        </div>
+        {/* 2. 4-xonali OTP inputlar bloki */}
+        <OtpInputGroup
+          otp={otp}
+          inputRefs={inputRefs}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
 
+        {/* Tasdiqlash tugmasi */}
         <div>
-          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} type="submit" disabled={isLoading} className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex justify-center py-3 px-4 text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 shadow-md transition-all"
+          >
             {isLoading ? t("verifying") : t("verifyCode")}
           </motion.button>
         </div>
 
-        <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-          {timer > 0 ? (
-            <span>{t("resendCode")} <strong className="text-blue-600 dark:text-blue-400">{timer}s</strong></span>
-          ) : (
-            <button type="button" onClick={handleResend} className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 underline transition-colors">
-              {t("regenerateCode")}
-            </button>
-          )}
-        </div>
+        {/* 3. Taymer yoki qayta tiklash bloki */}
+        <TimerSection timer={timer} onResend={handleResend} />
       </form>
     </AuthLayout>
   );
