@@ -1,11 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import type { AuthLayoutProps } from '../interfaces/AuthLayoutProps';
 
-interface AuthLayoutProps {
-  children: React.ReactNode;
-  title: string;
-  subtitle: string;
-}
+
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle }) => {
   return (

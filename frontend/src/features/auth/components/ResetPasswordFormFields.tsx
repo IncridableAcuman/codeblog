@@ -1,14 +1,7 @@
 import React from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import type { ResetPasswordFormFieldsProps } from "../interfaces/ResetPasswordFormFieldsProps";
 
-interface ResetPasswordFormFieldsProps {
-  password: string;
-  setPassword: (val: string) => void;
-  confirmPassword: string;
-  setConfirmPassword: (val: string) => void;
-  showPassword: boolean;
-  setShowPassword: (val: boolean) => void;
-}
 
 export const ResetPasswordFormFields: React.FC<ResetPasswordFormFieldsProps> = ({
   password, setPassword,

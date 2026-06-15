@@ -1,9 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
+import type { ErrorMessageProps } from "../interfaces/ErrorMessageProps";
 
-interface ErrorMessageProps {
-  message: string;
-}
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({ message }) => (
   <motion.div

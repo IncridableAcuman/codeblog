@@ -1,19 +1,8 @@
 import React from "react";
 import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import type { RegisterFormFieldsProps } from "../interfaces/RegisterFormFieldsProps";
 
-interface RegisterFormFieldsProps {
-  fullName: string;
-  setFullName: (val: string) => void;
-  email: string;
-  setEmail: (val: string) => void;
-  password: string;
-  setPassword: (val: string) => void;
-  confirmPassword: string;
-  setConfirmPassword: (val: string) => void;
-  showPassword: boolean;
-  setShowPassword: (val: boolean) => void;
-}
 
 export const RegisterFormFields: React.FC<RegisterFormFieldsProps> = ({
   fullName, setFullName,

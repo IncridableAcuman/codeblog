@@ -1,10 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
+import type { AlertMessageProps } from "../interfaces/AlertMessageProps";
 
-interface AlertMessageProps {
-  message: string;
-  type: "success" | "error";
-}
+
 
 export const AlertMessage: React.FC<AlertMessageProps> = ({ message, type }) => {
   const isSuccess = type === "success";

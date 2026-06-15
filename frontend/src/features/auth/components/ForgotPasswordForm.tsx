@@ -4,14 +4,8 @@ import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ErrorMessage } from './ErrorMessage';
+import type { ForgotPasswordFormProps } from '../interfaces/ForgotPasswordFormProps';
 
-interface ForgotPasswordFormProps {
-  email: string;
-  setEmail: (val: string) => void;
-  isLoading: boolean;
-  error: string;
-  onSubmit: (e: React.FormEvent) => void;
-}
 
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   email,

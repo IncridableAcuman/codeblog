@@ -1,10 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import type { TimerSectionProps } from "../interfaces/TimerSectionProps";
 
-interface TimerSectionProps {
-  timer: number;
-  onResend: () => void;
-}
 
 export const TimerSection: React.FC<TimerSectionProps> = ({ timer, onResend }) => {
   const { t } = useTranslation();

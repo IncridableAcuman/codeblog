@@ -1,15 +1,7 @@
 import React from 'react';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-
-interface LoginFormFieldsProps {
-  email: string;
-  setEmail: (val: string) => void;
-  password: string;
-  setPassword: (val: string) => void;
-  showPassword: boolean;
-  setShowPassword: (val: boolean) => void;
-}
+import type { LoginFormFieldsProps } from '../interfaces/LoginFormFieldsProps';
 
 export const LoginFormFields: React.FC<LoginFormFieldsProps> = ({
   email, setEmail,
