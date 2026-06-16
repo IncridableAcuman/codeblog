@@ -1,8 +1,15 @@
 import axiosInstance from "./api";
 
 export const blogApiService = {
-  // 1. Hamma bloglarni olish
+  // 1. Hamma bloglarni olish (Asosiy sahifa uchun)
   getAllBlogs: async () => {
+    const response = await axiosInstance.get("/blogs");
+    return response.data;
+  },
+
+  // ✨ JORIY FOYDALANUVCHINING BLOGLARINI OLISH (Dashboard uchun optimallashtirilgan)
+  // Backend: @GetMapping (Hech qanday ID-siz, shunchaki /blogs)
+  getMyBlogs: async () => {
     const response = await axiosInstance.get("/blogs");
     return response.data;
   },
@@ -29,8 +36,8 @@ export const blogApiService = {
     return response.data;
   },
 
-  // 5. Blogni tahrirlash (Patch)
-  editBlog: async (id: number, formData: FormData) => {
+  // 5. Blogni tahrirlash (Patch - FormData bilan)
+  editBlog: async (id: number | string, formData: FormData) => {
     const response = await axiosInstance.patch(`/blogs/${id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',

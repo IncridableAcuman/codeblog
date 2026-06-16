@@ -1,9 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiEye, FiHeart, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import type { BlogTableProps } from '../interfaces/BlogTableProps';
+import type { BlogPost } from '../../../types/blog';
 
-export const BlogTable: React.FC<BlogTableProps> = ({ posts, onDelete }) => (
+interface ExtendedBlogTableProps {
+  posts: BlogPost[];
+  onDelete: (id: number, title: string) => void;
+  onEditClick: (post: BlogPost) => void; // Modalni ochish uchun yangi prop
+}
+
+export const BlogTable: React.FC<ExtendedBlogTableProps> = ({ posts, onDelete, onEditClick }) => (
   <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm overflow-hidden">
     <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
       <h3 className="font-bold text-slate-900 dark:text-white">Mening maqolalarim</h3>
@@ -44,15 +50,18 @@ export const BlogTable: React.FC<BlogTableProps> = ({ posts, onDelete }) => (
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <Link 
-                      to={`/edit-post/${post.id}`}
-                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all"
+                    {/* Link o'rniga Dialog ochuvchi Button o'rnatildi */}
+                    <button 
+                      onClick={() => onEditClick(post)}
+                      title="Tahrirlash"
+                      className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg transition-all cursor-pointer"
                     >
                       <FiEdit2 size={16} />
-                    </Link>
+                    </button>
                     <button 
                       onClick={() => onDelete(post.id, post.title)}
-                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
+                      title="O'chirish"
+                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all cursor-pointer"
                     >
                       <FiTrash2 size={16} />
                     </button>

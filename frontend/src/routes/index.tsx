@@ -10,7 +10,6 @@ import { BlogListPage } from "../features/blog/pages/BlogListPage";
 import { BlogDetailPage } from "../features/blog/pages/BlogDetailPage";
 import { CreatePostPage } from "../features/blog/pages/CreatePostPage";
 import { DashboardPage } from "../features/dashboard/page/DashboardPage";
-import { ProfilePage } from "../features/profile/pages/ProfilePage";
 
 // Himoyalangan router (Faqat tizimga kirganlar uchun)
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -124,14 +123,6 @@ export const AppRoutes = () => {
           }
         />
 
-        <Route
-          path="profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
       </Route>
 
       {/* Noto'g'ri URL kiritilsa bosh sahifaga otadi */}

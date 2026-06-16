@@ -5,47 +5,70 @@ import type { BlogPost } from '../../../types/blog';
 
 export const useDashboard = () => {
   const { user } = UseAuth();
-  const [loading,setLoading] = useState(true);
-  const [blogs, setBlogs] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [myPosts, setMyPosts] = useState<BlogPost[]>([]);
+  
+  // Modal boshqaruvi uchun statelar
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!user) return;
     setLoading(true);
-    blogApiService.getAllBlogs()
-      .then((data) => setBlogs(data))
-      .catch((err) => console.error("Maqolalarni yuklashda xatolik:", err))
+    blogApiService.getMyBlogs()
+      .then((data) => setMyPosts(data))
+      .catch((err) => console.error("Yuklashda xatolik:", err))
       .finally(() => setLoading(false));
-  }, [setLoading]);
+  }, [user]);
 
-  // Faqat joriy foydalanuvchiga tegishli maqolalar
-  const myPosts = useMemo(() => {
-    if (!user) return [];
-    return blogs.filter((post) => post.user?.id === user.id);
-  }, [blogs, user]);
+  // Tahrirlash tugmasi bosilganda modalni ochish
+  const openEditModal = (post: BlogPost) => {
+    setSelectedPost(post);
+    setIsEditModalOpen(true);
+  };
 
-  // Statistikalar
-  const totalViews = useMemo(() => myPosts.reduce((acc, curr) => acc + (curr.views || 0), 0), [myPosts]);
-  const totalLikes = useMemo(() => myPosts.reduce((acc, curr) => acc + (curr.likes || 0), 0), [myPosts]);
+  // Backendga o'zgarishlarni yuborish mantiqi
+  const handleEditSave = async (id: number, formData: FormData) => {
+    try {
+      // blogApiService dagi 5-metod chaqiriladi (@PatchMapping)
+      const updatedPost = await blogApiService.editBlog(id, formData);
+      
+      // Statedagi eski maqolani yangisiga almashtirish
+      setMyPosts((prev) => prev.map((post) => post.id === id ? updatedPost : post));
+      alert("Maqola muvaffaqiyatli yangilandi!");
+    } catch (err) {
+      console.error("Yangilashda xatolik:", err);
+      alert("Maqolani yangilab bo'lmadi.");
+      throw err;
+    }
+  };
 
+  // O'chirish (Delete) mantiqi
   const handleDelete = (id: number, title: string) => {
     if (window.confirm(`"${title}" maqolasini o‘chirib tashlamoqchimisiz?`)) {
       blogApiService.deleteBlog(id)
         .then(() => {
           alert("Maqola muvaffaqiyatli o‘chirildi.");
-          setBlogs((prev) => prev.filter((b) => b.id !== id));
+          setMyPosts((prev) => prev.filter((b) => b.id !== id));
         })
-        .catch((err) => {
-          console.error("O'chirishda xatolik yuz berdi:", err);
-          alert("Maqolani o‘chirish imkoni bo‘lmadi.");
-        });
+        .catch((err) => console.error(err));
     }
   };
+
+  const totalViews = useMemo(() => myPosts.reduce((acc, curr) => acc + (curr.views || 0), 0), [myPosts]);
+  const totalLikes = useMemo(() => myPosts.reduce((acc, curr) => acc + (curr.likes || 0), 0), [myPosts]);
 
   return {
     loading,
     myPosts,
     totalViews,
     totalLikes,
-    handleDelete
+    handleDelete,
+    // Yangi qo'shilganlar:
+    isEditModalOpen,
+    setIsEditModalOpen,
+    selectedPost,
+    openEditModal,
+    handleEditSave
   };
 };

@@ -1,5 +1,13 @@
 package com.blog.backend.domain.blog.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.blog.backend.domain.comment.entity.CommentEntity;
+import com.blog.backend.domain.comment.repository.CommentRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.blog.backend.domain.blog.dto.BlogRequest;
 import com.blog.backend.domain.blog.dto.BlogResponse;
 import com.blog.backend.domain.blog.entity.BlogEntity;
@@ -10,18 +18,15 @@ import com.blog.backend.domain.user.entity.UserEntity;
 import com.blog.backend.exception.custom.CustomBadRequestException;
 import com.blog.backend.exception.custom.CustomNotFoundException;
 import com.blog.backend.util.FileUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class BlogService {
     private final BlogRepository blogRepository;
     private final BlogLikeRepository blogLikeRepository;
+    private final CommentRepository commentRepository;
     private final FileUtil fileUtil;
 
     public BlogResponse createBlog(UserEntity user, BlogRequest request){
@@ -59,11 +64,17 @@ public class BlogService {
     @Transactional
     public BlogResponse removeBlog(UserEntity user,Long id){
         BlogEntity blog = findBlogById(id);
-        if (!blog.getUser().equals(user)){
+        if (!blog.getUser().getId().equals(user.getId())){
             throw new CustomBadRequestException("Only author can delete this post");
         }
+        BlogLikeEntity blogLike = blogLikeRepository.findByUserAndBlog(user,blog).orElseThrow();
         boolean isLiked = blogLikeRepository.existsByUserAndBlog(user,blog);
+        List<CommentEntity> comments = commentRepository.findByBlogIdOrderByCreatedAtDesc(blog.getId());
+        fileUtil.removeFile(blog.getCoverImage());
         blogRepository.delete(blog);
+        blogLikeRepository.delete(blogLike);
+        comments
+                .forEach(commentRepository::delete);
         return BlogResponse.from(blog,user,isLiked);
     }
     public BlogResponse editBlog(UserEntity user,Long id,BlogRequest request){
