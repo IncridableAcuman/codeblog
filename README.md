@@ -1,55 +1,278 @@
-# ⚡ CodeBlog - Full-Stack Developer Blogging Platform
+# ✍️ CodeBlog
 
-Zamonaviy, yuqori unumdorlikka ega va dasturchilar uchun maxsus ishlab chiqilgan to'liq siklli (Full-Stack) blog platformasi. Loyiha zamonaviy **Java 21 / Spring Boot 4** backend hamda **React 19 / Tailwind v4** frontend ekotizimida, eng ilg'or arxitektura qoidalari asosida qurilgan.
+A modern blogging platform backend built with Java Spring Boot. The application provides secure authentication, blog post management, category organization, and comment functionality through a RESTful API architecture.
+
+## 🚀 Features
+
+### Authentication & Authorization
+
+* User Registration
+* User Login
+* JWT Authentication
+* Role-Based Access Control (USER, ADMIN)
+* Password Encryption with BCrypt
+
+### Blog Management
+
+* Create Blog Posts
+* Update Blog Posts
+* Delete Blog Posts
+* View All Posts
+* View Single Post
+* Author-Based Posts
+
+### Categories
+
+* Create Categories
+* Update Categories
+* Delete Categories
+* Assign Categories to Posts
+
+### Comments
+
+* Add Comments to Posts
+* Update Comments
+* Delete Comments
+* View Post Comments
+
+### Additional Features
+
+* Pagination & Sorting
+* Search Functionality
+* Global Exception Handling
+* Request Validation
+* RESTful API Design
 
 ---
 
-## 🚀 Loyiha Xususiyatlari (Features)
+## 🛠️ Tech Stack
 
-* **🌓 Global Dynamic Theme:** `ThemeProvider` va Tailwind v4 orqali mukammal Dark/Light mode integratsiyasi.
-* **🌐 Multi-language (i18n):** `react-i18next` yordamida dinamik til o'zgartirish (UZ, EN, RU).
-* **🔒 Secure Authentication & Security:** Spring Security va JWT (Json Web Token) asosidagi xavfsiz autentifikatsiya. Ro'yxatdan o'tishda OTP kod tasdiqlash va parolni elektron pochta (Spring Mail) orqali tiklash tizimi.
-* **🔍 Advanced Search & Filter:** Maqolalarni real vaqtda matn orqali tezkor qidirish va kategoriyalar bo'yicha silliq filtrlash.
-* **📝 Rich Text Editor:** Maqolalarni chiroyli formatlash, rasmlar joylash va kod bloklarini qo'llab-quvvatlash uchun **Tiptap Editor** integratsiyasi.
-* **💬 Interactive Community:** Maqolalarga fikrlar (izohlar) qoldirish va interaktiv reyting (Like) tizimi.
-* **📊 Developer Dashboard:** Mualliflar uchun shaxsiy umumiy statistika (views, likes), interaktiv diagrammalar (`recharts`) va maqolalarni boshqarish/tahrirlash jadvali.
+### Backend
 
----
+* Java 21
+* Spring Boot 3
+* Spring Security
+* Spring Data JPA
+* Hibernate
 
-## 🛠 Texnologiyalar Bayoni (Tech Stack)
+### Database
 
-### ☕ Backend
-* **Asosiy freymvork:** Spring Boot 4.0.6 (Java 21)
-* **Xavfsizlik:** Spring Security, JWT (io.jsonwebtoken v0.11.5)
-* **Ma'lumotlar bazasi:** PostgreSQL, Spring Data JPA (Hibernate)
-* **Tizimli muloqot:** Spring Mail (OTP va Parol tiklash xatlari uchun)
-* **Hujjatlashtirish:** Springdoc OpenAPI (Swagger UI v3.0.2)
-* **Yig'uvchi:** Gradle
+* PostgreSQL
 
-### ⚛️ Frontend
-* **Kutubxona:** React 19 (Functional Components, Custom Hooks)
-* **Til:** TypeScript (Strict Mode)
-* **Stillar:** Tailwind CSS v4 (Modern CSS-variables configuration)
-* **Yig'uvchi:** Vite 8
-* **Animatsiyalar:** Framer Motion
-* **Diagrammalar:** Recharts
+### Authentication
+
+* JWT (JSON Web Token)
+* BCrypt Password Encoder
+
+### Development Tools
+
+* Gradle
+* Lombok
+* MapStruct (if used)
 
 ---
 
-## 📂 Loyiha Tuzilishi (Project Architecture)
+## 📂 Project Structure
 
-Loyiha ikkita mustaqil va alohida (Loose Coupling) moduldan iborat:
-
-### 📁 Backend (`/backend`)
 ```text
-backend/
-├── src/main/java/com/blog/
-│   ├── config/          # Spring Security, CORS, JWT va Web MVC sozlamalari
-│   ├── controller/      # API Endpointlar (Auth, Post, Comment, File)
-│   ├── entity/          # PostgreSQL ma'lumotlar bazasi modellari (User, Post, Comment)
-│   ├── repository/      # Spring Data JPA interfeyslari
-│   ├── security/        # JWT Filter, UserDetails va Autentifikatsiya provayderi
-│   └── service/         # Asosiy biznes mantiq qatlami (Mail, Auth, Post xizmatlari)
-├── src/main/resources/
-│   └── application.properties # Spring Boot konfiguratsiyasi
-└── build.gradle         # Backend bog'liqliklar ro'yxati
+src/main/java
+├── config
+├── controller
+├── dto
+├── entity
+├── exception
+├── repository
+├── security
+├── service
+└── util
+```
+
+---
+
+## ⚙️ Getting Started
+
+### Clone Repository
+
+```bash
+git clone https://github.com/IncridableAcuman/codeblog.git
+cd codeblog
+```
+
+### Configure Database
+
+Create PostgreSQL database:
+
+```sql
+CREATE DATABASE codeblog;
+```
+
+Configure `application.yml`:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/codeblog
+    username: postgres
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+```
+
+### Configure JWT
+
+```yaml
+jwt:
+  secret: your-secret-key
+  expiration: 86400000
+```
+
+### Run Application
+
+#### Gradle
+
+```bash
+./gradlew bootRun
+```
+
+#### Build JAR
+
+```bash
+./gradlew build
+java -jar build/libs/codeblog.jar
+```
+
+---
+
+## 🔐 Authentication API
+
+### Register
+
+```http
+POST /api/auth/register
+```
+
+Request:
+
+```json
+{
+  "username": "john",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+### Login
+
+```http
+POST /api/auth/login
+```
+
+Response:
+
+```json
+{
+  "accessToken": "jwt-token",
+  "tokenType": "Bearer"
+}
+```
+
+---
+
+## 📝 Blog Post API
+
+| Method | Endpoint        | Description    |
+| ------ | --------------- | -------------- |
+| GET    | /api/posts      | Get all posts  |
+| GET    | /api/posts/{id} | Get post by id |
+| POST   | /api/posts      | Create post    |
+| PUT    | /api/posts/{id} | Update post    |
+| DELETE | /api/posts/{id} | Delete post    |
+
+---
+
+## 📂 Category API
+
+| Method | Endpoint             |
+| ------ | -------------------- |
+| GET    | /api/categories      |
+| POST   | /api/categories      |
+| PUT    | /api/categories/{id} |
+| DELETE | /api/categories/{id} |
+
+---
+
+## 💬 Comment API
+
+| Method | Endpoint                     |
+| ------ | ---------------------------- |
+| POST   | /api/posts/{postId}/comments |
+| PUT    | /api/comments/{id}           |
+| DELETE | /api/comments/{id}           |
+
+---
+
+## 🔒 Security Features
+
+* Spring Security Integration
+* JWT Authentication
+* Password Encryption (BCrypt)
+* Role-Based Authorization
+* Protected Endpoints
+* Input Validation
+
+---
+
+## 🧪 Testing
+
+Run tests:
+
+```bash
+./gradlew test
+```
+
+---
+
+## 🐳 Docker Support
+
+Build Image:
+
+```bash
+docker build -t codeblog .
+```
+
+Run Container:
+
+```bash
+docker run -p 8080:8080 codeblog
+```
+
+---
+
+## 📈 Future Improvements
+
+* Swagger/OpenAPI Documentation
+* Refresh Tokens
+* Email Verification
+* Password Reset
+* Rich Text Editor Support
+* Image Upload (Cloudinary/AWS S3)
+* Likes & Reactions
+* Real-Time Notifications
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Author
+
+**Izzat Abdusharipov**
+
+Java Backend Developer | Spring Boot | PostgreSQL | JWT Authentication
+
+GitHub: https://github.com/IncridableAcuman
