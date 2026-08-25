@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth->auth
                                 .requestMatchers("/swagger-ui.html","/swagger-ui/**","/api-docs","/api-docs/**").permitAll()
                                 .requestMatchers(HttpMethod.GET,"/api/v1/blogs/**").permitAll()
-                                .requestMatchers("/files/**").permitAll()
+                                .requestMatchers("/uploads/**").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/api/v1/blogs").authenticated()
                                 .requestMatchers(HttpMethod.PATCH,"/api/v1/blogs/**").authenticated()
                                 .requestMatchers(HttpMethod.DELETE,"/api/v1/blogs").authenticated()

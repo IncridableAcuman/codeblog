@@ -1,10 +1,8 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { BlogCard } from "../components/BlogCard";
-import { useBlogList } from "../hooks/useBlogList";
-import { BlogSearchHeader } from "../components/BlogSearchHeader";
-import { CategoryFilters } from "../components/CategoryFilters";
-
+import React from 'react';
+import { useBlogList } from '../hooks/useBlogList';
+import { BlogSearchHeader } from '../components/BlogSearchHeader';
+import { CategoryFilters } from '../components/CategoryFilters';
+import { BlogCard } from '../components/BlogCard';
 
 export const BlogListPage: React.FC = () => {
   const {
@@ -13,42 +11,38 @@ export const BlogListPage: React.FC = () => {
     setSearchQuery,
     selectedCategory,
     setSelectedCategory,
-    loading,
+    loading
   } = useBlogList();
 
-  if (loading) {
-    return <div className="text-center py-20 text-slate-600 dark:text-slate-400">Maqolalar yuklanmoqda...</div>;
-  }
-
   return (
-    <div className="space-y-8">
-      {/* 1. Sarlavha va Qidiruv */}
-      <BlogSearchHeader searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <BlogSearchHeader
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+        />
 
-      {/* 2. Kategoriya Filtrlari */}
-      <CategoryFilters selectedCategory={selectedCategory} onCategorySelect={setSelectedCategory} />
+        <CategoryFilters
+            selectedCategory={selectedCategory}
+            onCategorySelect={setSelectedCategory}
+        />
 
-      {/* 3. Blog Kartalari Ro'yxati */}
-      {filteredBlogs.length > 0 ? (
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBlogs.map((post) => (
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              key={post.id}
-            >
-              <BlogCard post={post} />
-            </motion.div>
-          ))}
-        </motion.div>
-      ) : (
-        <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-          <p className="text-slate-500 dark:text-slate-400">Hech qanday maqola topilmadi.</p>
-        </div>
-      )}
-    </div>
+        {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div key={n} className="h-80 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-2xl" />
+              ))}
+            </div>
+        ) : filteredBlogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredBlogs.map((post) => (
+                  <BlogCard key={post.id} post={post} />
+              ))}
+            </div>
+        ) : (
+            <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+              <p className="text-slate-500 dark:text-slate-400">Maqolalar topilmadi.</p>
+            </div>
+        )}
+      </div>
   );
 };

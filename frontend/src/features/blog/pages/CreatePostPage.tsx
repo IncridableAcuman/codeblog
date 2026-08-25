@@ -1,9 +1,7 @@
 import React from 'react';
-import { RichEditor } from '../../../components/editor/RichEditor';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { PostFormFields } from '../components/PostFormFields';
 import { ImageUpload } from '../components/ImageUpload';
-
 
 export const CreatePostPage: React.FC = () => {
   const {
@@ -17,49 +15,51 @@ export const CreatePostPage: React.FC = () => {
   } = useCreatePost();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Chap tomondagi asosiy Forma bo'limi */}
-      <div className="lg:col-span-2 space-y-6">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Yangi maqola yozish
-          </h1>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* 1. Matnli asosiy maydonlar */}
-          <PostFormFields
-            title={title}
-            setTitle={setTitle}
-            category={category}
-            setCategory={setCategory}
-            description={description}
-            setDescription={setDescription}
-          />
-
-          {/* 2. Muqova rasmini yuklash bo'limi */}
-          <ImageUpload image={image} onFileChange={handleFileChange} />
-
-          {/* 3. Rich Text Editor (RichEditor o'z state'ini to'g'ridan-to'g'ri yangilaydi) */}
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-slate-700 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Maqola kontenti
-            </label>
-            <RichEditor content={content} onChange={setContent} />
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Yangi maqola yaratish</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Jamiyat bilan o'z bilimlaringiz va tajribangizni ulashing.
+            </p>
           </div>
 
-          {/* Amal tugmasi */}
-          <div className="flex justify-end gap-3">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <PostFormFields
+                title={title}
+                setTitle={setTitle}
+                category={category}
+                setCategory={setCategory}
+                description={description}
+                setDescription={setDescription}
+            />
+
+            <ImageUpload image={image} onFileChange={handleFileChange} />
+
+            {/* Maqola to'liq matni */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Maqola matni (HTML / Plain Text)
+              </label>
+              <textarea
+                  rows={10}
+                  required
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="w-full p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                  placeholder="<p>Maqolangiz matnini yozing...</p>"
+              />
+            </div>
+
             <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-50"
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-all shadow-md shadow-blue-500/20"
             >
-              {isSubmitting ? "Chop etilmoqda..." : "Maqolani chop etish"}
+              {isSubmitting ? 'Chop etilmoqda...' : 'Chop etish'}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
   );
 };

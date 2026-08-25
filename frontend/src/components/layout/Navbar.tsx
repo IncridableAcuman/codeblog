@@ -74,7 +74,7 @@ const handleLogout = async () => {
             <div className="flex items-center gap-3 border-l pl-4 border-slate-200 dark:border-slate-750">
               <Link to="/dashboard" className="flex items-center gap-2 group">
                 <img
-                  src={user.avatarUrl}
+                  src={`http://localhost:8080/uploads/${user.avatarUrl}`}
                   alt={user.fullName}
                   className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20"
                 />

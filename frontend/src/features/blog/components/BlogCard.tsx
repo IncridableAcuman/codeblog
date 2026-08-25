@@ -12,9 +12,9 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   const dateFormatted = post.createdAt ? new Date(post.createdAt).toLocaleDateString('uz-UZ') : "Yaqinda";
 
   // Backend rasm nomini qaytaradi (masalan: "uuid-image.png"), unga to'liq URL beramiz
-  const imageUrl = post.coverImage 
-    ? `http://localhost:8080/files/${post.coverImage}` // Backend static resurslar yo'li
-    : "https://images.unsplash.com/photo-1677442136019-21780efad99a";
+  const imageUrl = post.coverImage
+      ? `http://localhost:8080/uploads/${post.coverImage}`
+      : "https://images.unsplash.com/photo-1677442136019-21780efad99a";
 
   return (
     <motion.article
